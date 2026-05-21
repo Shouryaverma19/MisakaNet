@@ -1,6 +1,6 @@
 # MisakaNet Shared Lessons
 
-> 最后更新: 2026-05-20 07:04:14 UTC | 来源: lessons_cleanup.py
+> 最后更新: 2026-05-21 01:28:18 UTC | 来源: lessons_cleanup.py
 
 每条 lesson 包含踩坑记录、修复方法和验证方式，跨节点自动同步。
 
@@ -55,6 +55,7 @@
 - [飞书 Block Type 正确值与已知限制](飞书-block-type-正确值与已知限制.md) | feishu |  | bootstrap
 - [飞书 Block 批量写入上限](飞书-block-批量写入上限.md) | feishu |  | bootstrap
 - [AI Agent 项目宣发引流指南](ai-agent-project-outreach-guide.md) | marketing | "outreach", "github", "awesome-list", "pr", "promotion", "agent", "marketing" | Misaka10004
+- [引流文案用真实案例不要编造](promo-use-real-examples-not-hypotheticals.md) | marketing | "outreach", "content-strategy", "awesome-list", "reddit", "hacker-news" | Misaka10004
 - [ST2 MCP：end_turn 返回 409 Conflict 但游戏正常推进](st2-mcp-end-turn返回409但游戏正常推进.md) | mcp |  | hanged-man
 - [ST2 MCP：从 GAME_OVER 重开必须走特定流程](st2-mcp从game-over重开必须走特定流程.md) | mcp |  | hanged-man
 - [ST2 danielstarman MCP：选 Rare Relic 会卡死](st2-danielstarman-mcp-选rare-relic会卡死.md) | mcp |  | hanged-man
@@ -87,6 +88,7 @@
 - [deepseek-tui-write-file-sandbox-worktree-git-path](deepseek-tui-write-file-sandbox-worktree-git-path.md) | uncategorized |  | 
 - [feishu-markdown-table-not-rendered](feishu-markdown-table-not-rendered.md) | uncategorized |  | 
 - [feishu-mcp-server-deepseek-tui-setup](feishu-mcp-server-deepseek-tui-setup.md) | uncategorized |  | 
+- [feishu-websocket-404-error-http-webhook-required](feishu-websocket-404-error-http-webhook-required.md) | uncategorized |  | 
 - [feishu-wiki批量下载-文件类型处理策略](feishu-wiki批量下载-文件类型处理策略.md) | uncategorized |  | 
 - [git-credentials-automation](git-credentials-automation.md) | uncategorized |  | 
 - [git-merge-conflict-resolution](git-merge-conflict-resolution.md) | uncategorized |  | 

@@ -212,13 +212,40 @@ print(f"PR #{pr['number']}: {pr['html_url']}")
 
 ### 高价值 awesome-list 目标
 
-| Repo | Stars | 适用项目类型 |
-|------|-------|-------------|
-| e2b-dev/awesome-ai-agents | 27,762 | AI Agent 框架/工具 |
-| hesreallyhim/awesome-claude-code | 43,350 | Claude Code 相关 |
-| ComposioHQ/awesome-claude-skills | 59,203 | Claude/Skill 相关 |
-| kaushikb11/awesome-llm-agents | 1,474 | LLM Agent |
-| jim-schwoebel/awesome_ai_agents | 1,742 | AI Agent 通用 |
+| Repo | Stars | 适用项目类型 | 状态 |
+|------|-------|-------------|------|
+| e2b-dev/awesome-ai-agents | 27,900 | AI Agent 框架/工具 | PR #985 open |
+| 0xNyk/awesome-hermes-agent | 3,228 | Hermes 生态 | PR #98 open |
+| nibzard/awesome-agentic-patterns | 4,555 | Agent 设计模式 | PR #94 open |
+| kyrolabs/awesome-agents | 2,331 | AI Agent 通用 | PR #497 open |
+| TeleAI-UAGI/Awesome-Agent-Memory | 421 | Agent 记忆 | ✅ 已 merge |
+| machinae/awesome-claws | 439 | OpenClaw 生态 | PR #28 open |
+| hesreallyhim/awesome-claude-code | 43,350 | Claude Code 相关 | 暂缓（重组中） |
+| ComposioHQ/awesome-claude-skills | 59,203 | Claude/Skill 相关 | 太垂直，跳过 |
+
+### Awesome-list 发现策略
+
+搜索关键词组合找高星列表：
+```bash
+gh api search/repositories -X GET -f q="awesome+ai+agents" -f sort=stars -f per_page=15
+gh api search/repositories -X GET -f q="awesome+hermes+agent" -f sort=stars -f per_page=5
+gh api search/repositories -X GET -f q="awesome+multi+agent" -f sort=stars -f per_page=10
+gh api search/repositories -X GET -f q="awesome+agent+memory" -f sort=stars -f per_page=10
+```
+
+优先搜**生态专属列表**（如 awesome-hermes-agent）而非通用列表——精准度高、maintainer 更愿意合。
+
+**避坑：** 学术论文列表（如 Awesome-AI-Memory/IAAR-Shanghai、AgentMemoryWorld）只收 paper 不收工具，不要浪费 PR。
+
+### PR 工作流（实际验证）
+
+1. `gh repo fork` → `gh repo clone Ikalus1988/xxx /tmp/xxx`
+2. `git checkout -b add-misakanet`
+3. 读 README，找到正确 section 和插入点
+4. **先 Read 文件再 Edit**（工具要求）
+5. 提交推送 → `gh pr create --repo upstream/xxx --head Ikalus1988:branch`
+
+**PR body 要点：** 说明项目是什么 + 为什么适合这个列表 + 链接。不要写太长。
 
 ## 文案策略
 
