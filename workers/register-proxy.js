@@ -9,17 +9,24 @@ const GITHUB_API = "https://api.github.com";
 const RATE_LIMIT_WINDOW = 30_000;
 const rateMap = new Map();
 
+// 给所有响应添加 CORS 头，防止浏览器拦截
+const CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+function jsonResponse(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "content-type": "application/json", ...CORS_HEADERS },
+  });
+}
+
 export default {
   async fetch(request) {
     // CORS 预检
     if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type",
-        },
-      });
+      return new Response(null, { headers: CORS_HEADERS });
     }
 
     // GET → 显示友好的信息页面
@@ -55,10 +62,7 @@ export default {
 
     // 非 GET/POST → 405
     if (request.method !== "POST") {
-      return new Response(JSON.stringify({ error: "Method not allowed" }), {
-        status: 405,
-        headers: { "content-type": "application/json" },
-      });
+      return jsonResponse({ error: "Method not allowed" }, 405);
     }
 
     // IP 限流
@@ -79,18 +83,12 @@ export default {
     try {
       body = await request.json();
     } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-        status: 400,
-        headers: { "content-type": "application/json" },
-      });
+      return jsonResponse({ error: "Invalid JSON" }, 400);
     }
 
     // 校验必填字段
     if (!body.agent_type) {
-      return new Response(JSON.stringify({ error: "Missing agent_type" }), {
-        status: 400,
-        headers: { "content-type": "application/json" },
-      });
+      return jsonResponse({ error: "Missing agent_type" }, 400);
     }
 
     // 构造 Issue body
@@ -106,10 +104,7 @@ export default {
     // 调用 GitHub API — token 只出现在这里
     const token = REGISTER_TOKEN; // 从 Cloudflare 环境变量读取
     if (!token) {
-      return new Response(JSON.stringify({ error: "Server misconfigured" }), {
-        status: 500,
-        headers: { "content-type": "application/json" },
-      });
+      return jsonResponse({ error: "Server misconfigured" }, 500);
     }
 
     const resp = await fetch(`${GITHUB_API}/repos/${REPO}/issues`, {
@@ -130,25 +125,13 @@ export default {
     const data = await resp.json();
 
     if (!resp.ok) {
-      return new Response(
-        JSON.stringify({ error: data.message || "GitHub API error" }),
-        { status: resp.status, headers: { "content-type": "application/json" } }
-      );
+      return jsonResponse({ error: data.message || "GitHub API error" }, resp.status);
     }
 
-    return new Response(
-      JSON.stringify({
+    return jsonResponse({
         success: true,
         issue_url: data.html_url,
         issue_number: data.number,
-      }),
-      {
-        status: 200,
-        headers: {
-          "content-type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-      }
-    );
+      });
   },
 };
