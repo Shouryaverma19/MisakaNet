@@ -5,6 +5,10 @@
 </p>
 
 <p align="center">
+  <i>求救：如何实现让点进来的用户自动 star 本项目呢，LOL</i>
+</p>
+
+<p align="center">
   <a href="https://github.com/Ikalus1988/MisakaNet/stargazers"><img src="https://img.shields.io/github/stars/Ikalus1988/MisakaNet?style=social" alt="Stars"/></a>
   <a href="https://github.com/Ikalus1988/MisakaNet/network/members"><img src="https://img.shields.io/github/forks/Ikalus1988/MisakaNet?style=social" alt="Forks"/></a>
   <a href="https://github.com/Ikalus1988/MisakaNet/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Ikalus1988/MisakaNet" alt="License"/></a>
