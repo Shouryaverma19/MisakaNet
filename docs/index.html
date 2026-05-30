@@ -33,7 +33,7 @@
   body {
     background: var(--bg-deep);
     color: var(--text-primary);
-    font-family: 'Inter', 'Noto Sans SC', sans-serif;
+    font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
     min-height: 100vh;
     line-height: 1.6;
     position: relative;
@@ -732,7 +732,7 @@
   .agent-option:hover .agent-icon { transform: scale(1.25); }
   .agent-option:hover { border-color: var(--cyan); color: var(--text-primary); box-shadow: 0 0 16px rgba(0, 229, 255, 0.06); }
   .agent-option:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-  .agent-option.selected { border-color: var(--cyan); background: rgba(0, 229, 255, 0.08); color: var(--cyan); box-shadow: 0 0 20px rgba(0, 229, 255, 0.1); }
+  .agent-option.selected { border-color: var(--cyan); background: rgba(0, 229, 255, 0.85); color: #070b15; box-shadow: 0 0 24px rgba(0, 229, 255, 0.25); }
 
   .register-checkbox-label {
     display: flex;
@@ -988,14 +988,38 @@
 
   /* ── Glass container for main content depth ── */
   .content-glass {
-    background: rgba(7, 11, 21, 0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(0, 229, 255, 0.06);
+    background: rgba(5, 10, 20, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 229, 255, 0.08);
     border-radius: 20px;
     padding: 32px 28px;
     margin-top: 24px;
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.4), inset 0 0 60px rgba(0, 229, 255, 0.02);
+    position: relative;
+  }
+  /* Tech corner decorations */
+  .content-glass::before,
+  .content-glass::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: rgba(0, 229, 255, 0.2);
+    border-style: solid;
+    pointer-events: none;
+  }
+  .content-glass::before {
+    top: -1px;
+    left: -1px;
+    border-width: 2px 0 0 2px;
+    border-radius: 4px 0 0 0;
+  }
+  .content-glass::after {
+    bottom: -1px;
+    right: -1px;
+    border-width: 0 2px 2px 0;
+    border-radius: 0 0 4px 0;
   }
 
   /* ── Breathing animation for error items ── */
@@ -1201,7 +1225,7 @@
     </div>
     <div style="background:rgba(0,0,0,0.5);border:1px solid rgba(0,229,255,0.08);border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:8px;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;">
       <code style="color:var(--cyan);word-break:break-all;flex:1;text-align:left;line-height:1.5;">curl -s -X POST https://misakanet-register-proxy.eric-jia1920.workers.dev/ \</code>
-      <button onclick="copyAndToast()" style="flex-shrink:0;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.15);color:var(--cyan);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,229,255,0.15)'" onmouseout="this.style.background='rgba(0,229,255,0.08)'">COPY</button>
+      <button onclick="copyAndToast(this)" style="flex-shrink:0;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.15);color:var(--cyan);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace;transition:all 0.2s;" onmouseover="this.style.background='rgba(0,229,255,0.15)'" onmouseout="this.style.background='rgba(0,229,255,0.08)'">COPY</button>
     </div>
   </div>
 
@@ -1373,14 +1397,31 @@ const SCARF_COLOR = (num) => SCARF_COLORS[num % 12];
 
 // ── Toast notification ──
 let toastTimer = null;
-function copyAndToast() {
+let copyBtnTimer = null;
+function copyAndToast(btn) {
   const cmd = 'curl -s -X POST https://misakanet-register-proxy.eric-jia1920.workers.dev/ -H "Content-Type: application/json" -d \'{"agent_type":"YOUR_AGENT","body":"## 🧠 通过公开通道加入御坂网络\\nAgent 类型: **YOUR_AGENT**\\n\\n已确认条款。"}\'';
   navigator.clipboard?.writeText(cmd);
+  // Toast
   const toast = document.getElementById('toast');
   toast.textContent = '> Agent Registration Command Copied to Clipboard.';
   toast.className = 'toast show';
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { toast.className = 'toast'; }, 2000);
+  // Button feedback — COPIED ✓ + green flash
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = 'COPIED ✓';
+    btn.style.borderColor = '#22c55e';
+    btn.style.color = '#22c55e';
+    btn.style.boxShadow = '0 0 12px rgba(34,197,94,0.3)';
+    clearTimeout(copyBtnTimer);
+    copyBtnTimer = setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.borderColor = 'rgba(0,229,255,0.15)';
+      btn.style.color = 'var(--cyan)';
+      btn.style.boxShadow = 'none';
+    }, 1800);
+  }
 }
 
 // ── Onboarding modal ──
@@ -1395,6 +1436,13 @@ document.addEventListener('keydown', (e) => {
     const input = document.getElementById('search-input');
     input.focus();
     input.select();
+    // Highlight flash: brief glow then fade
+    input.style.boxShadow = '0 0 40px rgba(0,229,255,0.3), inset 0 0 20px rgba(0,229,255,0.05)';
+    input.style.borderColor = 'rgba(0,229,255,0.6)';
+    setTimeout(() => {
+      input.style.boxShadow = 'none';
+      input.style.borderColor = 'rgba(0,229,255,0.4)';
+    }, 800);
   }
   // Escape to close modal
   if (e.key === 'Escape') {
