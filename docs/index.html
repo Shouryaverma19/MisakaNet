@@ -100,37 +100,23 @@
 
   .header-avatar {
     position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 360px;
-    max-width: 42vw;
-    height: auto;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.55;
-    filter: drop-shadow(0 0 60px rgba(106, 239, 255, 0.35));
-  }
-
-  .header-avatar-left {
-    position: absolute;
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    width: 300px;
-    max-width: 38vw;
+    width: 360px;
+    max-width: 44vw;
     height: auto;
     pointer-events: none;
     z-index: 0;
-    opacity: 0.40;
-    filter: drop-shadow(0 0 50px rgba(127, 109, 255, 0.30));
+    opacity: 0.50;
+    filter: drop-shadow(0 0 60px rgba(106, 239, 255, 0.40));
   }
 
   .header-content {
     position: relative;
     z-index: 1;
     text-align: right;
-    padding: 0 380px 0 320px;
+    padding-left: 380px;
   }
 
   .lang-toggle {
@@ -784,8 +770,7 @@
 
   /* ── Responsive ── */
   @media (max-width: 700px) {
-    .header-avatar,
-    .header-avatar-left { display: none; }
+    .header-avatar { display: none; }
     .logo-title { font-size: 32px; letter-spacing: 2px; }
     .logo-cn { font-size: 32px; letter-spacing: 6px; }
     .timeline::before { left: 20px; }
@@ -804,7 +789,6 @@
 
   <!-- Header -->
   <header class="header">
-    <img class="header-avatar-left" src="https://raw.githubusercontent.com/Ikalus1988/MisakaNet/main/promotional/misaka-avatar-crop.png" alt="">
     <img class="header-avatar" src="https://raw.githubusercontent.com/Ikalus1988/MisakaNet/main/promotional/misaka-avatar-crop-v2.png" alt="">
     <div class="header-content">
 
@@ -838,7 +822,7 @@
       </div>
       <div class="logo-cn" data-i18n="titleCn">御坂网络</div>
       <div class="logo-tagline">Safe. Useful. Zero-Dep.</div>
-      <div style="margin-top:8px;display:flex;gap:6px;justify-content:center;">
+      <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end;">
         <button onclick="switchLang('zh')" style="background:none;border:1px solid #30363d;color:#8b949e;padding:2px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit;">中</button>
         <button onclick="switchLang('en')" style="background:none;border:1px solid #30363d;color:#8b949e;padding:2px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit;">EN</button>
       </div>
