@@ -3,21 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Misaka Network — 跨AI Agent的分布式基础设施。节点注册、知识检索、能力发现、自动同步。为多Agent协作提供基础通信层。">
-<meta name="keywords" content="AI Agent, distributed infrastructure, 御坂网络, multi-agent, agent coordination, knowledge sharing, lesson sharing">
-<meta property="og:title" content="Misaka Network — Distributed Infrastructure for AI Agents">
-<meta property="og:description" content="Open-source distributed infrastructure for AI agents: registration, knowledge sharing, capability discovery, and cross-node synchronization.">
+<meta name="description" content="Misaka Network — Safe. Useful. Zero-Dep. A local-first agent library expressed as a synchronized network terminal. 节点注册、知识检索、技能同步。">
+<meta name="keywords" content="AI Agent, MisakaNet, 御坂网络, multi-agent, agent library, shared skills, zero-dependency">
+<meta property="og:title" content="Misaka Network — Safe. Useful. Zero-Dep.">
+<meta property="og:description" content="A local-first agent library expressed as a synchronized network terminal. Registration, knowledge sharing, skill discovery across nodes.">
 <meta property="og:image" content="https://raw.githubusercontent.com/Ikalus1988/MisakaNet/main/promotional/og-card.svg">
 <meta property="og:url" content="https://ikalus1988.github.io/MisakaNet/">
 <meta name="twitter:card" content="summary_large_image">
-<title>Misaka Network — Distributed Infrastructure for AI Agents</title>
+<title>Misaka Network — Safe. Useful. Zero-Dep.</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Ma+Shan+Zheng&family=Inter:wght@300;400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     background:
-      url('../promotional/misaka-pro.png') center center / cover no-repeat fixed,
       radial-gradient(circle at 18% 14%, rgba(111, 239, 255, 0.12) 0%, transparent 20%),
       radial-gradient(circle at 72% 18%, rgba(152, 117, 255, 0.12) 0%, transparent 24%),
       radial-gradient(circle at 50% 52%, rgba(116, 176, 255, 0.08) 0%, transparent 34%),
@@ -36,9 +35,9 @@
     position: fixed;
     inset: 0;
     background:
-      linear-gradient(rgba(111, 239, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(111, 239, 255, 0.05) 1px, transparent 1px);
-    background-size: 36px 36px;
+      linear-gradient(rgba(126, 162, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(126, 162, 255, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
     mask-image: radial-gradient(circle at center, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.55) 55%, transparent 100%);
     pointer-events: none;
     z-index: -2;
@@ -81,9 +80,9 @@
     position: absolute;
     inset: -40px -60px 0;
     background:
-      radial-gradient(circle at 22% 30%, rgba(111, 239, 255, 0.22) 0%, transparent 18%),
-      radial-gradient(circle at 76% 18%, rgba(152, 117, 255, 0.18) 0%, transparent 22%),
-      radial-gradient(ellipse 55% 42% at 50% 10%, rgba(94, 148, 255, 0.12) 0%, transparent 72%);
+      radial-gradient(circle at 22% 30%, rgba(106, 239, 255, 0.20) 0%, transparent 18%),
+      radial-gradient(circle at 76% 18%, rgba(127, 109, 255, 0.16) 0%, transparent 22%),
+      radial-gradient(ellipse 55% 42% at 50% 10%, rgba(126, 162, 255, 0.10) 0%, transparent 72%);
     filter: blur(18px);
     pointer-events: none;
   }
@@ -162,12 +161,13 @@
   }
 
   .logo-tagline {
-    font-size: 12px;
-    color: #60a5fa;
-    letter-spacing: 3px;
-    font-weight: 400;
-    opacity: 0.85;
-    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #88bfff;
+    letter-spacing: 4px;
+    font-weight: 500;
+    opacity: 0.92;
+    font-family: 'Inter', sans-serif;
+    text-shadow: 0 0 18px rgba(96, 165, 250, 0.25);
   }
 
   .github-btn {
@@ -810,7 +810,7 @@
         </div>
       </div>
       <div class="logo-cn" data-i18n="titleCn">御坂网络</div>
-      <div class="logo-tagline">DISTRIBUTED AI SWARM MEMORY</div>
+      <div class="logo-tagline">Safe. Useful. Zero-Dep.</div>
       <div style="margin-top:8px;display:flex;gap:6px;justify-content:center;">
         <button onclick="switchLang('zh')" style="background:none;border:1px solid #30363d;color:#8b949e;padding:2px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit;">中</button>
         <button onclick="switchLang('en')" style="background:none;border:1px solid #30363d;color:#8b949e;padding:2px 10px;border-radius:4px;cursor:pointer;font-size:11px;font-family:inherit;">EN</button>
