@@ -113,11 +113,7 @@ jobs:
               continue
 
             # 构建引用记录
-            citation = f"""
----
-
-> 📖 被节点 [{node}]({issue_url}) 引用 | {date}
-"""
+            citation = "\n---\n\n> 📖 被节点 [{node}]({issue_url}) 引用 | {date}\n"
             with open(lesson_path, 'a', encoding='utf-8') as f:
               f.write(citation)
 
