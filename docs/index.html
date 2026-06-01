@@ -1978,10 +1978,13 @@ async function loadRecentRegistrations() {
       .filter(r => r.status === 'fulfilled' && r.value)
       .map(r => r.value);
 
-    // Filter test nodes, don't dedup by user
-    const registrations = results
-      .filter(r => !TEST_NODES.has(r.nodeNum))
-      .map(r => r.issue);
+    // Show ALL registrations; node number from comment, or fallback to counter
+    const allResults = results;
+    const registrations = displayIssues
+      .filter(i => {
+        const result = allResults.find(r => r.issue.number === i.number);
+        return !result || !TEST_NODES.has(result.nodeNum);
+      });
 
     if (registrations.length === 0) {
       list.innerHTML = '<div class="loading-item">暂无注册记录</div>';
@@ -1995,8 +1998,10 @@ async function loadRecentRegistrations() {
 
     list.innerHTML = registrations.map((issue, idx) => {
       const nth = registrations.length - idx;
-      const result = results.find(r => r.issue.number === issue.number);
-      const number = result ? result.nodeNum : (10000 + nth);
+      const result = allResults.find(r => r.issue.number === issue.number);
+      const number = result
+        ? result.nodeNum
+        : (CURRENT_COUNTER - registrations.length + 1 + idx);
       const date = new Date(issue.created_at).toISOString().slice(0, 10);
       const avatarSrc = AVATAR_URL(number);
       const scarfColor = SCARF_COLOR(nth);
