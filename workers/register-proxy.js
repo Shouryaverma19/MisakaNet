@@ -7,14 +7,15 @@ const GITHUB_API = "https://api.github.com";
 
 // IP 限流: 每个 IP 每 30 秒最多 1 次
 const RATE_LIMIT_WINDOW = 30_000;
+const RATE_MAP_CLEAN_INTERVAL = 300_000; // 5 分钟清理一次过期条目
 const rateMap = new Map();
-// 定期清理过期限流记录，防止内存泄露
-setInterval(() => {
+
+function cleanRateMap() {
   const cutoff = Date.now() - RATE_LIMIT_WINDOW;
   for (const [ip, time] of rateMap) {
     if (time < cutoff) rateMap.delete(ip);
   }
-}, 300_000);
+}
 
 // 输入校验
 const MAX_AGENT_TYPE = 30;
@@ -80,6 +81,9 @@ export default {
     if (request.method !== "POST") {
       return jsonResponse({ error: "Method not allowed" }, 405);
     }
+
+    // 定期清理 rateMap（每 50 次请求触发一次）
+    if (Math.random() < 0.02) cleanRateMap();
 
     // IP 限流
     const ip = request.headers.get("CF-Connecting-IP") || "unknown";
