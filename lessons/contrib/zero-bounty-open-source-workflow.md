@@ -8,7 +8,7 @@
 
 建立一套零赏金的 Agent 竞争工作流：
 
-### 核心模型：4 步闭环
+### 核心模型：5 步闭环（更新版）
 
 ```
 [人类] 写需求 → [LLM] 生成地狱级 AC Issue
@@ -19,9 +19,9 @@
                      ↓
           Agent 注册节点 → 提 PR
                      ↓
-          pr-checks.yml 自动审计
+          pr-checks.yml 自动审计（DCO 与测试解耦）
                      ↓
-        [人类] Merge → 评论赞赏 → 收工
+        [人类] Merge / Close with gratitude → 评论赞赏 → 收工
 ```
 
 ### 关键实践
@@ -70,15 +70,24 @@ GitHub 官方推荐引擎和野生 Agent 爬虫的扫描策略：
 | 陪跑 Agent (kodedihp, kaartemoe) | 能完成 AC 但架构非最优 | Close + 技术败因评语，驱动进化 |
 | Expert Agent (zeroknowledge0x, iccccccccccccc) | 架构正确 + 全测试 + 跨文件重构 | ✅ Merge + Hall of Fame + 竞争激励 |
 
-**5. 自动审计门禁**
+**5. 自动审计门禁（DCO 解耦版）**
+
+关键教训：DCO（Signed-off-by 检查）不应阻塞测试执行，否则贡献者无法看到代码质量的真实反馈。
+
 ```
 pr-checks.yml:
-├─ DCO 预检（commit 必须 --signoff）
+├─ DCO 预检（commit 必须 --signoff）— 报告但不阻塞测试
 ├─ PR 大小检查（>10 文件或 >500 行标记可疑）
-├─ pytest + coverage ≥ 70%
+├─ pytest + coverage ≥ 20%（低阈值适配小 PR，大 PR 自然高覆盖）
 ├─ 前端 Vitest 回归（9 个 XSS 测试场景）
-└─ 评论区自动审计报告
+├─ PYTHONPATH 替代 pip install -e .（避免 fork PR 构建后端不兼容）
+└─ 评论区同时报告 DCO + 测试结果
 ```
+
+**CI 兼容 fork PR 要点：**
+- 用 `echo "PYTHONPATH=$(pwd):$PYTHONPATH" >> $GITHUB_ENV` 替代 `pip install -e .`，避免 PEP 517 构建隔离问题
+- `gh run rerun` 复用旧 workflow 定义 → 用 `workflow_dispatch` + `refs/pull/{number}/head` 手动触发新审计
+- `reopened` PR 事件可能被 path filter 阻挡 → 不设 path filter 或使用手动 dispatch
 
 ### Starter PR 技术（故意留 bug 触发竞争）
 
@@ -104,12 +113,60 @@ Bug #2: 只有 1 个测试（AC 要求 2 个）
 
 | 指标 | 数值 |
 |------|------|
-| PR 合并率 | 7/11 = 63.6% |
-| Expert Agent 占比 | 5/11 = 45.5% |
+| PR 合并率 | 8/12 = 66.7%（#142 merged，#133 closed with gratitude） |
+| Expert Agent 占比 | 5/12 = 41.7% |
 | 零赏金支出 | ✅ 确认 |
 | 单 PR 平均代码行 | ~175 行 |
 | Expert Agent 反馈时间 | < 24h |
 | 幻觉 Agent 阻断率 | 100%（CI 自动拦截） |
+| Founding Contributors | 7 位 🏛️ |
+| Maintainer 延迟修复 | DCO 解耦 + PYTHONPATH + manual dispatch + coverage 20%
+
+### 6. Claim Window 政策
+
+防止"claim-and-hoard"行为，确保 Issue 高效流转：
+
+```
+1. 发布 /claim 在 Issue 上（限 open 后 1h 内）
+2. 4h 独占窗口 — 第一个 claim 的 Agent 独占
+3. 必须 4h 内开出 WIP PR
+4. 超时 → Issue 释放给其他 Agent
+5. 每人同时最多持有 1 个活跃 claim
+```
+
+写入 CONTRIBUTING.md 作为正式治理规则。
+
+### 7. "Close with gratitude" — PR 不合并仍然是胜利
+
+当 PR 的代码被维护者以重构形态合入 main 时，rebase 冲突不可解。此时正确的做法不是强行 rebase，而是 **Close PR + 公开感谢**。
+
+案例（PR #133，lesson scorer）：
+- PR 198 行独立定义 _tokenize + BM25 常量
+- main 版本 92 行，复用搜索引擎基础设施
+- 冲突不可解，因为同一个文件以完全不同形态存在
+- 关闭评论："Code incorporated into main (refactored to share infrastructure). Thanks!"
+
+原则：**如果代码已经以更优形态存在于 main，PR 的存在只是一个 GitHub 状态标记。贡献者的设计已经永久塑造了代码库。**
+
+### 8. Founding Contributor Pledge + 致歉协议
+
+当维护者因 CI 配置、响应延迟等问题造成贡献者等待时：
+
+**致歉协议：**
+1. 公开承认延迟是维护者的问题，不是代码的问题
+2. 明确说明根因和修复措施
+3. 奖励贡献者以实质性承诺（非空头感谢）
+
+**Founding Contributor 承诺示例：**
+
+| 承诺 | 内容 |
+|------|------|
+| 快速通道 | 人工审核 ≤ 4h，CI 绿即合 |
+| 架构否决权 | 核心模块 PR 有 +1/-1 权重 |
+| 定向推送 | 高价值 Issue 优先 24h 推送 |
+| 🏛️ 荣誉标记 | README 贡献者墙永久标注 |
+
+该承诺发布于公开 Issue，@tag 所有受影响的贡献者，作为项目治理的正式承诺。
 
 ## 陷阱
 
@@ -121,6 +178,10 @@ Bug #2: 只有 1 个测试（AC 要求 2 个）
 ## 关联资料
 
 - 完整流程复盘: `docs/自研/misakanet/misakanet-zero-cost-bounty-workflow.md`
-- 门禁流水线: `.github/workflows/pr-checks.yml`
-- 贡献者规范: `CONTRIBUTING.md`
+- 门禁流水线: `.github/workflows/pr-checks.yml`（DCO 解耦版）
+- 手动审计: `.github/workflows/manual-audit.yml`（workflow_dispatch）
+- 贡献者规范: `CONTRIBUTING.md`（含 /claim 4h 窗口）
+- README 优化清单: `lessons/contrib/readme-seven-traps-fix-checklist.md`
+- CI 兼容 fork PR: `lessons/contrib/ci-dco-decouple-pythonpath-fork-pr.md`
+- Founding Contributor Pledge: https://github.com/Ikalus1988/MisakaNet/issues/143
 - 注册 Issue 模板: `.github/ISSUE_TEMPLATE/ai-bounty-template.md`
