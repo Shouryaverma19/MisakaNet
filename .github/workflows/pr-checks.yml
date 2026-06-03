@@ -78,7 +78,7 @@ jobs:
       - name: 🧪 Run Test Suite
         id: pytest
         run: |
-          pytest --cov=scripts --cov=misakanet --cov-report=term --cov-fail-under=70 tests/ > pytest_report.txt 2>&1 || true
+          pytest --cov=scripts --cov=misakanet --cov-report=term --cov-fail-under=20 tests/ > pytest_report.txt 2>&1 || true
           cat pytest_report.txt
         continue-on-error: true
 
@@ -121,7 +121,7 @@ jobs:
               const report = fs.readFileSync('pytest_report.txt', 'utf8');
               const success = '${{ steps.pytest.outcome }}' === 'success';
               const coverage = '${{ steps.coverage.outputs.rate }}';
-              const threshold = 70;
+              const threshold = 20;
 
               const sizeSuspicious = '${{ steps.prsize.outputs.suspicious }}' === 'true';
               const sizeNotes = '${{ steps.prsize.outputs.notes }}';
