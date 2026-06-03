@@ -4,7 +4,7 @@ build-backend = "setuptools.backends._legacy:_Backend"
 
 [project]
 name = "misakanet"
-version = "2.0.0"
+version = "2.5"
 description = "AI Agent 分布式经验知识共享系统 — 踩坑一次，全网受益"
 readme = "README.md"
 license = {file = "LICENSE"}
