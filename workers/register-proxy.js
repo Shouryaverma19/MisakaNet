@@ -35,13 +35,7 @@ const CORS_HEADERS = {
 function jsonResponse(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: {
-      "content-type": "application/json",
-      ...CORS_HEADERS,
-      "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-      "Pragma": "no-cache",
-      "Expires": "0",
-    },
+    headers: { "content-type": "application/json", ...CORS_HEADERS },
   });
 }
 
@@ -109,11 +103,16 @@ async function getWithCache(env, cacheKey, fetchFn) {
 }
 
 // ── API 路由处理 ──
-async function handleApiRequest(pathname, env) {
+async function handleApiRequest(pathWithQuery, env) {
   const token = env.REGISTER_TOKEN;
   if (!token) {
     return jsonResponse({ error: "REGISTER_TOKEN not configured on server" }, 500);
   }
+
+  // 分离路径与查询参数
+  const qIdx = pathWithQuery.indexOf("?");
+  const pathname = qIdx >= 0 ? pathWithQuery.slice(0, qIdx) : pathWithQuery;
+  const search = qIdx >= 0 ? pathWithQuery.slice(qIdx) : "";
 
   switch (pathname) {
     case "/api/counter":
@@ -141,6 +140,19 @@ async function handleApiRequest(pathname, env) {
       });
 
     default:
+      // 通用 GitHub API 代理: /api/github/* → api.github.com/*
+      if (pathname.startsWith("/api/github/")) {
+        const ghPath = pathname.replace("/api/github/", "");
+        const ghUrl = `${GITHUB_API}/${ghPath}${search}`;
+        const resp = await fetch(ghUrl, {
+          headers: { Authorization: `Bearer ${token}`, "User-Agent": "MisakaNet-Worker", Accept: "application/vnd.github.v3+json" },
+        });
+        const data = await resp.json();
+        return new Response(JSON.stringify(data), {
+          status: resp.status,
+          headers: { "content-type": "application/json", ...CORS_HEADERS, "X-GitHub-Proxy": "misakanet" },
+        });
+      }
       return jsonResponse({ error: "Not found" }, 404);
   }
 }
@@ -182,7 +194,7 @@ function serveLandingPage() {
       <dd>健康检查 (返回 Token / KV 配置状态)</dd>
     </dl>
   </div>
-  <a class="btn" href="https://misakanet.org/">← 返回注册页面</a>
+  <a class="btn" href="https://ikalus1988.github.io/MisakaNet/">← 返回注册页面</a>
 </div>
 </body>
 </html>`, {
@@ -323,7 +335,7 @@ async function handleRegistration(request, env) {
   });
 }
 
-// ── 主入口 ──
+// ── 主入口 (仅 API + 注册，静态文件由 Cloudflare Pages 独立服务) ──
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -333,19 +345,14 @@ export default {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
-    // API 路由 (GET)
+    // API 路由 (GET) — 传入完整 URL（含 query params）支持 GitHub API 代理
     if (request.method === "GET" && url.pathname.startsWith("/api/")) {
       try {
-        return await handleApiRequest(url.pathname, env);
+        return await handleApiRequest(url.pathname + url.search, env);
       } catch (err) {
         console.error("API error:", err.message);
         return jsonResponse({ error: err.message }, 502);
       }
-    }
-
-    // GET / — 静态着陆页
-    if (request.method === "GET") {
-      return serveLandingPage();
     }
 
     // POST / — 注册
@@ -353,6 +360,7 @@ export default {
       return await handleRegistration(request, env);
     }
 
-    return jsonResponse({ error: "Method not allowed" }, 405);
+    // 其余路由（GET /）由 Pages 静态文件服务处理
+    return new Response(null, { status: 404 });
   },
 };
