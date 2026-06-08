@@ -12,16 +12,24 @@ jobs:
   dco:
     runs-on: ubuntu-latest
     steps:
+      # 修复：fork PR 场景下需要 checkout 源分支，否则看不到 fork 的 commits
       - uses: actions/checkout@v4
         with:
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
+      - name: Fetch base branch for comparison
+        run: |
+          git remote add upstream https://github.com/${{ github.repository }}.git
+          git fetch upstream ${{ github.base_ref }}
 
       - name: DCO Check — require Signed-off-by on all commits
         shell: bash
         run: |
           set +e
           bad=0
-          for commit in $(git log --format='%H' origin/${{ github.base_ref }}..HEAD 2>/dev/null || git log --format='%H' HEAD~${{ github.event.pull_request.commits }}..HEAD); do
+          for commit in $(git log --format='%H' upstream/${{ github.base_ref }}..HEAD 2>/dev/null); do
             msg=$(git log --format='%B' -1 "$commit")
             if ! echo "$msg" | grep -qi 'Signed-off-by:'; then
               echo "❌ Commit $commit is missing Signed-off-by:"
