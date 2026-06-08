@@ -10,3 +10,5 @@
 
 Running telemetry pipeline benchmarks on sliding window audit migration.
 Focus: decoupling audit from search hot path while maintaining backward compatibility.
+
+Implementing asyncio.Lock gating for TelemetryPipeline (Issue #154).
