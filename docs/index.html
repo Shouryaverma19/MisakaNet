@@ -1694,6 +1694,19 @@ const BASE = "https://api.github.com/repos/" + REPO;
 const RAW_BASE = "https://raw.githubusercontent.com/" + REPO + "/main";
 const DATA_BASE = "https://raw.githubusercontent.com/" + REPO + "/data";
 
+// Worker GitHub API 代理：通过 Worker 中转 GitHub API 请求，绕开浏览器端未认证限速
+const GITHUB_PROXY = WORKER_BASE ? `${WORKER_BASE}/api/github/repos/${REPO}` : BASE;
+
+// 将 GitHub API URL 转为 Worker 代理 URL（若非 GitHub URL 则原样返回）
+function proxyGithubUrl(url) {
+  if (!url || !WORKER_BASE) return url;
+  const ghPrefix = "https://api.github.com/";
+  if (url.startsWith(ghPrefix)) {
+    return WORKER_BASE + "/api/github/" + url.slice(ghPrefix.length);
+  }
+  return url;
+}
+
 // Worker API 基础 URL — 如果已部署 Worker，设为 Worker 的 URL (如 "https://misakanet.xxx.workers.dev")
 // 设置后，counter / lessons 数据通过 Worker 代理获取（GitHub Token + KV 缓存），避免 direct raw.githubusercontent.com 限速
 // 留空则使用 DATA_BASE (raw.githubusercontent.com) 回退
@@ -2188,7 +2201,7 @@ async function loadRecentRegistrations() {
 
   try {
     const issues = await fetchJSON(
-      `${BASE}/issues?labels=registration&state=all&sort=created&direction=desc&per_page=20`
+      `${GITHUB_PROXY}/issues?labels=registration&state=all&sort=created&direction=desc&per_page=20`
     );
 
     const displayIssues = issues.filter(i => !i.pull_request);
@@ -2200,7 +2213,7 @@ async function loadRecentRegistrations() {
     // Extract real node numbers from comments (parallel with auth)
     const nodeFetches = displayIssues.map(async (issue) => {
       try {
-        const comments = await fetchJSON(issue.comments_url);
+        const comments = await fetchJSON(proxyGithubUrl(issue.comments_url));
         if (!Array.isArray(comments)) return null;
         for (const c of comments) {
           const m = c.body?.match(/Misaka(\d+)/);
@@ -2292,12 +2305,12 @@ async function loadActiveNodes() {
   const list = document.getElementById("active-list");
 
   try {
-    const regs = await fetchJSON(`${BASE}/issues?labels=registration&state=all&sort=created&direction=desc&per_page=50`);
+    const regs = await fetchJSON(`${GITHUB_PROXY}/issues?labels=registration&state=all&sort=created&direction=desc&per_page=50`);
     const regIssues = regs.filter(i => !i.pull_request);
     if (regIssues.length === 0) return;
 
     const seventyTwoHoursAgo = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
-    const usageIssues = await fetchJSON(`${BASE}/issues?labels=usage&state=all&sort=created&direction=desc&per_page=50`);
+    const usageIssues = await fetchJSON(`${GITHUB_PROXY}/issues?labels=usage&state=all&sort=created&direction=desc&per_page=50`);
     const recentUsage = usageIssues.filter(i => !i.pull_request && i.created_at >= seventyTwoHoursAgo);
 
     const activeNodes = new Set();
@@ -2322,7 +2335,7 @@ async function loadActiveNodes() {
     for (const issue of sortedIssues) {
       let nodeNum = null;
       let comments = [];
-      try { comments = await fetchJSON(issue.comments_url); }
+      try { comments = await fetchJSON(proxyGithubUrl(issue.comments_url)); }
       catch(e) { continue; }
       if (!Array.isArray(comments)) continue;
       for (const c of comments) {
@@ -2400,12 +2413,12 @@ async function loadContributors() {
   const list = document.getElementById("contrib-list");
 
   try {
-    const issues = await fetchJSON(`${BASE}/issues?labels=usage&state=all&sort=created&direction=desc&per_page=50`);
+    const issues = await fetchJSON(`${GITHUB_PROXY}/issues?labels=usage&state=all&sort=created&direction=desc&per_page=50`);
     const usageIssues = issues.filter(i => !i.pull_request);
 
     // Also fetch merged PRs to count lesson contributions from external users
     try {
-      const prs = await fetchJSON(`${BASE}/pulls?state=closed&sort=updated&direction=desc&per_page=20`);
+      const prs = await fetchJSON(`${GITHUB_PROXY}/pulls?state=closed&sort=updated&direction=desc&per_page=20`);
       // All closed PRs count as contributions (merged via API or force-push merged)
       const closedPRs = prs.filter(p => p.closed_at && !p.draft);
       // Build a lookup to avoid adding duplicate contributors
@@ -2798,7 +2811,7 @@ async function registerNode() {
       const pollTimer = setInterval(async () => {
         polls++;
         try {
-          const cr = await fetch(`${BASE}/issues/${data.issue_number}/comments`);
+          const cr = await fetch(`${GITHUB_PROXY}/issues/${data.issue_number}/comments`);
           if (!cr.ok) return;
           const comments = await cr.json();
           for (const c of comments) {
