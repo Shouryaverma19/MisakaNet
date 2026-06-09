@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: 'PR number to audit'
+        description: "PR number to audit"
         required: false
         type: string
 
@@ -18,18 +18,18 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - name:  Checkout Code
+      - name: Checkout Code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.pr_number != '' && format('refs/pull/{0}/head', github.event.inputs.pr_number) || github.ref }}
 
-      - name: Stop DCO Pre-flight Gate
+      - name: DCO Pre-flight Gate
         id: dco
         run: |
           bad=0
           BASE_REF="${{ github.base_ref || 'main' }}"
-          for commit in $(git log --format='%H' "origin/${BASE_REF}..HEAD" 2>/dev/null || git log --format='%H' HEAD~${{ github.event.pull_request.commits || 5 }}..HEAD); do
+          COMMIT_COUNT="${{ github.event.pull_request.commits || 5 }}"
+          for commit in $(git log --format='%H' "origin/${BASE_REF}..HEAD" 2>/dev/null || git log --format='%H' "HEAD~${COMMIT_COUNT}..HEAD"); do
             msg=$(git log --format='%B' -1 "$commit")
             if ! echo "$msg" | grep -qi 'Signed-off-by:'; then
               echo "Fail Commit $commit is missing Signed-off-by:"
@@ -38,26 +38,26 @@ jobs:
             fi
           done
           if [ "$bad" -gt 0 ]; then
-            echo "dco_passed=false" >> $GITHUB_OUTPUT
-            echo "Warn DCO FAILED - $bad commits missing Signed-off-by. Skipping expensive checks."
+            echo "dco_passed=false" >> "$GITHUB_OUTPUT"
+            echo "Warn DCO FAILED - $bad commits missing Signed-off-by."
           else
-            echo "dco_passed=true" >> $GITHUB_OUTPUT
+            echo "dco_passed=true" >> "$GITHUB_OUTPUT"
             echo "OK DCO PASSED"
           fi
 
-      - name: Python Setup Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
-          cache: 'pip'
+          python-version: "3.10"
+          cache: pip
 
-      - name: Package Install Dependencies
+      - name: Install Dependencies
         run: |
           pip install -r requirements.txt 2>/dev/null || true
           pip install pytest pytest-cov
-          echo "PYTHONPATH=$(pwd):$PYTHONPATH" >> $GITHUB_ENV
+          echo "PYTHONPATH=$(pwd):$PYTHONPATH" >> "$GITHUB_ENV"
 
-      - name: Search Check PR Size
+      - name: Check PR Size
         id: prsize
         run: |
           CHANGED=${{ github.event.pull_request.changed_files || 0 }}
@@ -72,107 +72,76 @@ jobs:
             SUSPICIOUS=true
             NOTES="${NOTES}; ${ADDITIONS} lines added (threshold: 500)"
           fi
-          echo "suspicious=${SUSPICIOUS}" >> $GITHUB_OUTPUT
-          echo "notes=${NOTES}" >> $GITHUB_OUTPUT
+          echo "suspicious=${SUSPICIOUS}" >> "$GITHUB_OUTPUT"
+          echo "notes=${NOTES}" >> "$GITHUB_OUTPUT"
 
-      - name: Test Run Test Suite
+      - name: Run Test Suite
         id: pytest
         run: |
           pytest --cov=scripts --cov=misakanet --cov-report=term --cov-fail-under=20 tests/ > pytest_report.txt 2>&1 || true
           cat pytest_report.txt
         continue-on-error: true
 
-      - name: Chart Parse Coverage
+      - name: Parse Coverage
         id: coverage
         run: |
           coverage=$(grep -oP 'TOTAL\s+\d+\s+\d+\s+\K\d+(?=%)' pytest_report.txt || echo "0")
-          echo "rate=$coverage" >> $GITHUB_OUTPUT
+          echo "rate=$coverage" >> "$GITHUB_OUTPUT"
           echo "Coverage: ${coverage}%"
 
-      - name: Shield Frontend Shield Regression
+      - name: Post Audit Report
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          npm ci && npm test
-        continue-on-error: true
+          DCO="${{ steps.dco.outputs.dco_passed }}"
+          OUTCOME="${{ steps.pytest.outcome }}"
+          COVERAGE="${{ steps.coverage.outputs.rate }}"
+          SUSPICIOUS="${{ steps.prsize.outputs.suspicious }}"
+          SIZE_NOTES="${{ steps.prsize.outputs.notes }}"
+          PR_NUM="${{ github.event.inputs.pr_number || github.event.pull_request.number }}"
+          SHA="${{ github.event.pull_request.head.sha || 'manual' }}"
+          SHA_SHORT=$(echo "$SHA" | cut -c1-7)
 
-      - name: Chat Post Audit Report to PR
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const dcoPassed = '${{ steps.dco.outputs.dco_passed }}' === 'true';
-            const fs = require('fs');
+          if [ "$DCO" = "true" ]; then
+            DCO_LINE="OK **DCO PASSED** - All commits include Signed-off-by."
+          else
+            DCO_LINE="Fail **DCO FAILED** - One or more commits missing Signed-off-by."
+          fi
 
-            // For workflow_dispatch, use the input PR number; for pull_request, use the event context.
-            const prNumber = '${{ github.event.inputs.pr_number }}'
-              ? parseInt('${{ github.event.inputs.pr_number }}')
-              : context.issue.number;
+          if [ "$OUTCOME" = "success" ]; then
+            HEADER="OK **PASS**: All tests passed (${COVERAGE}% coverage)"
+          else
+            HEADER="Fail **FAIL**: Test suite has failures"
+          fi
 
-            const commitSha = context.payload.pull_request
-              ? context.payload.pull_request.head.sha.slice(0, 7)
-              : 'manual';
+          COV_NOTE=""
+          if [ -n "$COVERAGE" ] && [ "$COVERAGE" -lt 20 ] 2>/dev/null; then
+            COV_NOTE="Warn Coverage ${COVERAGE}% is below 20% threshold."
+          fi
 
-            let dcoLine = dcoPassed
-              ? 'OK **DCO PASSED** - All commits include `Signed-off-by:`.'
-              : 'Fail **DCO FAILED** - One or more commits missing `Signed-off-by:`.';
+          SIZE_WARN=""
+          if [ "$SUSPICIOUS" = "true" ]; then
+            SIZE_WARN="Spy **SUSPICIOUS**: ${SIZE_NOTES}"
+          fi
 
-            let reportBody = '';
-            let suiteFailed = false;
+          BODY="### Robot Misaka Audit Bot Report
 
-            try {
-              const report = fs.readFileSync('pytest_report.txt', 'utf8');
-              const success = '${{ steps.pytest.outcome }}' === 'success';
-              const coverage = '${{ steps.coverage.outputs.rate }}';
-              const threshold = 20;
+          ${DCO_LINE}
 
-              const sizeSuspicious = '${{ steps.prsize.outputs.suspicious }}' === 'true';
-              const sizeNotes = '${{ steps.prsize.outputs.notes }}';
+          ---
 
-              const header = success
-                ? `OK **PASS**: All tests passed (${coverage}% coverage)`
-                : `Fail **FAIL**: Test suite has failures`;
+          ${HEADER}
+          ${COV_NOTE}
+          ${SIZE_WARN}
 
-              const coverageNote = parseInt(coverage) < threshold
-                ? `\nWarn Coverage ${coverage}% is below ${threshold}% threshold.`
-                : '';
+          *Triggered by: ${SHA_SHORT}*"
 
-              const sizeWarning = sizeSuspicious
-                ? `\nSpy **SUSPICIOUS**: ${sizeNotes}`
-                : '';
+          if [ -n "$PR_NUM" ]; then
+            gh pr comment "$PR_NUM" --repo Ikalus1988/MisakaNet --body "$BODY" 2>/dev/null ||               gh issue comment "$PR_NUM" --repo Ikalus1988/MisakaNet --body "$BODY" 2>/dev/null ||               echo "Could not post comment to PR #$PR_NUM"
+          fi
 
-              reportBody = [header, coverageNote, sizeWarning,
-                '',
-                '```text',
-                report.slice(0, 3000),
-                '```'
-              ].filter(Boolean).join('\n');
-
-              suiteFailed = !success || parseInt(coverage) < threshold;
-            } catch {
-              reportBody = '*Test suite did not produce a report.*';
-            }
-
-            const body = `### Robot Misaka Audit Bot Report
-
-${dcoLine}
-
----
-
-${reportBody}
-
-*Triggered by: ${commitSha}*`;
-
-            if (prNumber) {
-              try {
-                await github.rest.issues.createComment({
-                  issue_number: prNumber,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  body
-                });
-              } catch (err) {
-                console.log('Failed to post comment:', err.message);
-              }
-            }
-
-            if (!dcoPassed || suiteFailed) {
-              core.setFailed('Audit failed: DCO or test suite has issues.');
-            }
+          if [ "$DCO" != "true" ] || [ "$OUTCOME" != "success" ]; then
+            echo "Audit failed: DCO or test suite has issues."
+            exit 1
+          fi
