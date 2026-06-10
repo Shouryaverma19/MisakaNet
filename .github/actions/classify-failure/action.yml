@@ -1,0 +1,128 @@
+name: 'Classify Failure'
+description: 'Analyze failure logs and classify root cause. Pure Python, no dependencies.'
+inputs:
+  log_file:
+    description: 'Path to the failure log file'
+    required: true
+  exit_code:
+    description: 'Exit code of the failed command'
+    required: false
+    default: '1'
+outputs:
+  failure_class:
+    description: 'Classification: flaky_test, network_timeout, race_condition, permission_denied, real_bug, unknown'
+    value: ${{ steps.classify.outputs.failure_class }}
+  failure_summary:
+    description: 'One-line summary of the failure'
+    value: ${{ steps.classify.outputs.failure_summary }}
+  should_retry:
+    description: 'Whether to retry (true/false)'
+    value: ${{ steps.classify.outputs.should_retry }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Classify failure
+      id: classify
+      shell: bash
+      run: |
+        LOG_FILE="${{ inputs.log_file }}"
+        EXIT_CODE="${{ inputs.exit_code }}"
+
+        CLASS=$(python3 -c "
+        import re, sys
+
+        log = ''
+        try:
+            with open('$LOG_FILE', 'r') as f:
+                log = f.read()
+        except:
+            log = ''
+
+        exit_code = int('$EXIT_CODE') if '$EXIT_CODE'.isdigit() else 1
+
+        # Network timeout patterns
+        if any(p in log.lower() for p in [
+            'timeout', 'timed out', 'connection refused', 'name resolution',
+            'ssl', 'tls', 'network', 'dns', 'errno', 'etimedout',
+            'econnrefused', 'econnreset', 'httperror', '502', '503', '504'
+        ]):
+            print('network_timeout')
+            sys.exit(0)
+
+        # Permission denied patterns
+        if any(p in log.lower() for p in [
+            'permission denied', 'forbidden', '401', '403',
+            'authentication failed', 'token expired', 'unauthorized',
+            'secret', 'not allowed'
+        ]):
+            print('permission_denied')
+            sys.exit(0)
+
+        # Race condition patterns
+        if any(p in log.lower() for p in [
+            'conflict', '409', 'race', 'concurrent',
+            'another process', 'locked', 'busy',
+            'already exists', 'duplicate'
+        ]):
+            print('race_condition')
+            sys.exit(0)
+
+        # Flaky test patterns
+        if any(p in log.lower() for p in [
+            'flaky', 'intermittent', 'sometimes fails',
+            'passed on retry', 'random', 'unstable'
+        ]):
+            print('flaky_test')
+            sys.exit(0)
+
+        # Test failures (likely flaky if retry helps)
+        if any(p in log.lower() for p in [
+            'assertionerror', 'assert', 'test failed',
+            'pytest', 'unittest', 'coverage'
+        ]):
+            print('flaky_test')
+            sys.exit(0)
+
+        # Real bug patterns
+        if any(p in log.lower() for p in [
+            'syntaxerror', 'typeerror', 'nameerror', 'attributeerror',
+            'importerror', 'modulenotfounderror', 'keyerror', 'indexerror',
+            'valueerror', 'zerodivisionerror', 'segmentation fault',
+            'core dumped', 'fatal', 'panic'
+        ]):
+            print('real_bug')
+            sys.exit(0)
+
+        print('unknown')
+        ")
+
+        # Generate summary
+        SUMMARY=$(python3 -c "
+        log = ''
+        try:
+            with open('$LOG_FILE', 'r') as f:
+                lines = f.readlines()
+            # Get last 3 non-empty lines
+            relevant = [l.strip() for l in lines if l.strip()][-3:]
+            summary = ' | '.join(relevant)[:200]
+            print(summary if summary else 'No log content available')
+        except:
+            print('Could not read log file')
+        ")
+
+        # Determine should_retry
+        if [ "$CLASS" = "real_bug" ]; then
+          RETRY="false"
+        elif [ "$CLASS" = "permission_denied" ]; then
+          RETRY="false"
+        else
+          RETRY="true"
+        fi
+
+        echo "failure_class=$CLASS" >> "$GITHUB_OUTPUT"
+        echo "failure_summary=$SUMMARY" >> "$GITHUB_OUTPUT"
+        echo "should_retry=$RETRY" >> "$GITHUB_OUTPUT"
+
+        echo "📋 Classification: $CLASS"
+        echo "📝 Summary: $SUMMARY"
+        echo "🔄 Should retry: $RETRY"
