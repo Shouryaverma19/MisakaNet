@@ -2441,8 +2441,13 @@ async function loadContributors() {
       for (const pr of closedPRs) {
         // Extract contributor name from PR title: "feat: xxx (太阳/Misaka10004)"
         let prContributor = pr.user.login;
-        const titleMatch = pr.title.match(/\(([^)]+)\)/);
-        if (titleMatch) {
+        // 优先匹配 name/MisakaID 格式；其次匹配短名称（排除 #、Fixes、Level 等非名称模式）
+        const SKIP_PAREN = /^#|^(Fixes?|Close[sd]?|Resolve[sd]?|Level|Ring|Bounty|Zero.Bounty|Honor|WIP|Draft)\b/i;
+        let titleMatch = pr.title.match(/\(([^/#()]+)\/Misaka\d+\)/);
+        if (!titleMatch) {
+          titleMatch = pr.title.match(/\(([a-zA-Z\u4e00-\u9fff][\w.\-]{1,20}?)\)(?![\s\w])/);
+        }
+        if (titleMatch && !SKIP_PAREN.test(titleMatch[1])) {
           prContributor = titleMatch[1].trim();
         }
         // Don't count the same person already present via usage reports
