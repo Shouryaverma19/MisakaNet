@@ -56,6 +56,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt 2>/dev/null || true
+          pip install -r hub/requirements.txt 2>/dev/null || true
           pip install pytest pytest-cov
           echo "PYTHONPATH=$(pwd):$PYTHONPATH" >> "$GITHUB_ENV"
 
