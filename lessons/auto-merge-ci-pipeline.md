@@ -109,3 +109,4 @@ Standalone DCO check (`dco-check.yml`) is authoritative. The audit workflow's in
 - Fork PR secrets restriction means auto-merge only works for same-repo PRs; fork PRs fall back to manual merge
 - Quality scoring before tests saves CI minutes on low-effort submissions
 - Shadow branch is "nice to have" — the probe-and-skip pattern prevents fork PR failures
+
