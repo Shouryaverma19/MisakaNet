@@ -20,7 +20,7 @@
 
 ### 问题 B: Hydra worktree 的 git 链接在 WSL/Windows 路径混用下断裂
 
-Hydra 在 Windows 上创建 worktree 时，`.git` 文件内容为 `gitdir: C:/Users/hp/...`（Windows 路径）。从 WSL 环境下访问时，git 解析此路径失败，表现为：
+Hydra 在 Windows 上创建 worktree 时，`.git` 文件内容为 `gitdir: C:/Users/<user>/...`（Windows 路径）。从 WSL 环境下访问时，git 解析此路径失败，表现为：
 
 - `git status` → `fatal: not a git repository`
 - 修复 `.git` 文件为 `gitdir: /mnt/c/Users/hp/...`（WSL 路径）后，所有文件标记为 "D"（deleted）
@@ -29,7 +29,7 @@ Hydra 在 Windows 上创建 worktree 时，`.git` 文件内容为 `gitdir: C:/Us
 **根因**：`git worktree list` 显示 worktree 有两个路径：
 ```
 worktree /mnt/c/Users/hp/Agent-Medici           ← main（WSL 路径）
-worktree C:/Users/hp/Agent-Medici/.worktrees/... ← worktree（Windows 路径），标记 prunable
+worktree C:/Users/<user>/Agent-Medici/.worktrees/... ← worktree（Windows 路径），标记 prunable
 ```
 
 WSL 侧的 worktree 目录只是一个"影子"（含 .git 指针），实际文件在 Windows 侧。
