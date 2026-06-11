@@ -30,7 +30,7 @@ jobs:
             'bash.+dev/tcp'
             'eval\s'
             'exec\s'
-            '`[^`]*`'
+            # '`[^`]*`'  — removed: too noisy, flags all inline code
           )
 
           for file in lessons/*.md; do
