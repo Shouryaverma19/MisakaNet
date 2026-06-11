@@ -34,6 +34,8 @@ jobs:
 
       - name: Fetch base branch & resolve PR ref (manual)
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.pr_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           PR_NUM="${{ github.event.inputs.pr_number }}"
           echo "Fetching PR #$PR_NUM head ref..."
