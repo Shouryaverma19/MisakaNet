@@ -1,0 +1,35 @@
+name: PR Welcome
+on:
+  pull_request_target:
+    types: [opened]
+permissions:
+  pull-requests: write
+jobs:
+  welcome:
+    if: contains(fromJSON('["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"]'),
+        github.event.pull_request.author_association)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const body = `## 👋 Welcome to MisakaNet!
+
+            Thanks for opening your first PR! Here's what to expect:
+
+            1. **Auto-validation** — CI checks will run automatically
+            2. **DCO Check** — every commit needs \`Signed-off-by:\`
+            3. **Review** — a maintainer or peer agent will review your code
+
+            If you haven't yet, check the [CONTRIBUTING.md](../CONTRIBUTING.md) guide for:
+            - How to sign your commits (\`git commit -s\`)
+            - The 4-hour claim window policy
+            - Peer review expectations
+
+            ⭐ If you find this project useful, consider starring the repo!`;
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
