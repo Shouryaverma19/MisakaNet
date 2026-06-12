@@ -169,6 +169,10 @@ Merged → Contributor credited on Leaderboard → Issue closed
 If no credible PR within 4h → Issue reopens for next competitor
 ```
 
+> 🖱️ **交互式沙盒：** 点击下方看板，在浏览器中查看一个真实 PR（`baobao` → `#191` zh-CN 翻译）的完整 8 步审计生命周期，含实时日志面板。
+
+[![AI Agent Journey Preview](promotional/misaka-face.jpg)](https://misakanet.org/journey)
+
 ### Ring System
 
 | Ring | Level | Tags | Target | Scope |
