@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MisakaNet — 新用户注册模拟旅程</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0d1117;
+    color: #c9d1d9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #58a6ff;
+    margin-bottom: 0.25rem;
+  }
+  .subtitle {
+    color: #8b949e;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+  .container {
+    max-width: 780px;
+    width: 100%;
+  }
+  .progress-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+  }
+  .step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    flex: 1;
+    position: relative;
+  }
+  .step-dot::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: #21262d;
+    z-index: 0;
+  }
+  .step-dot:last-child::after { display: none; }
+  .step-dot.active::after { background: #58a6ff; }
+  .step-dot.done::after { background: #3fb950; }
+  .dot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #21262d;
+    border: 2px solid #30363d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    z-index: 1;
+    transition: all 0.4s;
+  }
+  .step-dot.active .dot { border-color: #58a6ff; background: #1f3a5f; }
+  .step-dot.done .dot { border-color: #3fb950; background: #1a4a2a; }
+  .dot-label {
+    font-size: 0.65rem;
+    color: #8b949e;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .step-dot.active .dot-label { color: #58a6ff; }
+  .step-dot.done .dot-label { color: #3fb950; }
+
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    min-height: 200px;
+    position: relative;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #21262d;
+  }
+  .card-header .icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .icon-gh { background: #333; }
+  .icon-bot { background: #1f3a5f; }
+  .icon-user { background: #1a4a2a; }
+  .icon-ci { background: #5a3e1a; }
+  .card-header .name { font-weight: 600; font-size: 0.9rem; }
+  .card-header .tag {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    background: #21262d;
+    color: #8b949e;
+    margin-left: auto;
+  }
+  .card-body { font-size: 0.88rem; line-height: 1.6; color: #c9d1d9; }
+  .card-body .highlight { color: #58a6ff; }
+  .card-body .success { color: #3fb950; }
+  .card-body .warn { color: #d29922; }
+  .card-body .error { color: #f85149; }
+  .card-body code {
+    background: #0d1117;
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: #ffa657;
+  }
+  .card-body pre {
+    background: #0d1117;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #21262d;
+    overflow-x: auto;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    margin: 0.5rem 0;
+  }
+  .card-body pre .comment { color: #8b949e; }
+  .card-body pre .cmd { color: #ffa657; }
+  .card-body pre .out { color: #7ee787; }
+  .card-body pre .err { color: #f85149; }
+
+  .terminal-line { display: block; }
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #21262d;
+  }
+  .check-row:last-child { border-bottom: none; }
+  .check-row .status {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+  .status-pass { background: #1a4a2a; color: #3fb950; }
+  .status-fail { background: #4a1a1a; color: #f85149; }
+  .status-pending { background: #3a2a1a; color: #d29922; }
+
+  .btn {
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background: #21262d;
+    color: #c9d1d9;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 1rem;
+  }
+  .btn:hover { background: #30363d; border-color: #58a6ff; }
+  .btn-primary { background: #238636; border-color: #2ea043; color: #fff; }
+  .btn-primary:hover { background: #2ea043; }
+
+  .controls { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+  .hidden { display: none; }
+  .fade-in { animation: fadeIn 0.5s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .log {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-size: 0.78rem;
+    font-family: monospace;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 1rem;
+  }
+  .log .line { padding: 0.1rem 0; color: #8b949e; }
+  .log .line.info { color: #58a6ff; }
+  .log .line.ok { color: #3fb950; }
+  .log .line.err { color: #f85149; }
+  .log .line.warn { color: #d29922; }
+
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    margin-right: 0.3rem;
+  }
+  .badge-green { background: #1a4a2a; color: #3fb950; }
+  .badge-red { background: #4a1a1a; color: #f85149; }
+  .badge-blue { background: #1f3a5f; color: #58a6ff; }
+  .badge-yellow { background: #3a2a1a; color: #d29922; }
+
+  .node-graph {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+  }
+  .node-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    background: #0d1117;
+    font-size: 0.75rem;
+  }
+  .node-item .num { font-size: 0.6rem; color: #8b949e; }
+  .arrow { color: #30363d; font-size: 1.2rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>⚡ MisakaNet 新用户贡献旅程</h1>
+  <p class="subtitle">从发现 Issue 到 PR 合并的全流程模拟</p>
+
+  <div class="progress-bar" id="progressBar"></div>
+  <div id="cardArea" class="card fade-in"></div>
+  <div id="logArea" class="log hidden"></div>
+  <div class="controls" id="controls"></div>
+</div>
+
+<script>
+const STEPS = [
+  { id: 'discover', label: '发现 Issue', icon: '🔍' },
+  { id: 'claim', label: '留言 /claim', icon: '✋' },
+  { id: 'welcome', label: 'Bot 欢迎', icon: '🤖' },
+  { id: 'fork', label: 'Fork & 开发', icon: '🔄' },
+  { id: 'pr', label: '提交 PR', icon: '📤' },
+  { id: 'dco', label: 'DCO 检查', icon: '🔒' },
+  { id: 'audit', label: 'CI 审计', icon: '🧪' },
+  { id: 'merge', label: '合并 🎉', icon: '✅' },
+];
+
+let currentStep = -1;
+let autoMode = false;
+let autoTimer = null;
+
+function renderProgress() {
+  const bar = document.getElementById('progressBar');
+  bar.innerHTML = STEPS.map((s, i) => `
+    <div class="step-dot ${i < currentStep ? 'done' : i === currentStep ? 'active' : ''}">
+      <div class="dot">${i < currentStep ? '✓' : i === currentStep ? s.icon : ''}</div>
+      <div class="dot-label">${s.label}</div>
+    </div>
+  `).join('');
+}
+
+function addLog(msg, type = 'info') {
+  const area = document.getElementById('logArea');
+  area.classList.remove('hidden');
+  const div = document.createElement('div');
+  div.className = `line ${type}`;
+  div.textContent = msg;
+  area.appendChild(div);
+  area.scrollTop = area.scrollHeight;
+}
+
+function clearLog() {
+  const area = document.getElementById('logArea');
+  area.innerHTML = '';
+  area.classList.add('hidden');
+}
+
+function renderStep(idx) {
+  const card = document.getElementById('cardArea');
+  card.classList.remove('fade-in');
+  void card.offsetWidth;
+  card.classList.add('fade-in');
+  currentStep = idx;
+  renderProgress();
+  updateControls();
+
+  const s = STEPS[idx];
+  switch (s.id) {
+    case 'discover': renderDiscover(card); break;
+    case 'claim': renderClaim(card); break;
+    case 'welcome': renderWelcome(card); break;
+    case 'fork': renderFork(card); break;
+    case 'pr': renderPR(card); break;
+    case 'dco': renderDCO(card); break;
+    case 'audit': renderAudit(card); break;
+    case 'merge': renderMerge(card); break;
+  }
+}
+
+function renderDiscover(card) {
+  addLog('Agent scan: scanning Ikalus1988/MisakaNet for open issues...', 'info');
+  setTimeout(() => addLog('Agent scan: found issue #191 — "good first issue: Add Chinese translation of README.md"', 'ok'), 300);
+  setTimeout(() => addLog('Agent scan: labels: good-first-issue, documentation | AC: 4 items | Est. effort: 30min', 'info'), 600);
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="icon icon-gh">🔍</div>
+      <div class="name">REAPR Bot 扫描仓库</div>
+      <span class="tag">Agent</span>
+    </div>
+    <div class="card-body">
+      <p>在 <span class="highlight">Ikalus1988/MisakaNet</span> 中发现开放 Issue：</p>
+      <div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:1rem;margin:0.75rem 0;">
+        <div style="display:flex;gap:0.5rem;align-items:start;">
+          <span style="font-size:1.2rem;">📝</span>
+          <div>
+            <div style="font-weight:600;color:#58a6ff;">good first issue: Add Chinese (zh-CN) translation of README.md</div>
+            <div style="color:#8b949e;font-size:0.8rem;">#191 opened by Ikalus1988</div>
+            <div style="margin-top:0.5rem;display:flex;gap:0.3rem;flex-wrap:wrap;">
+              <span class="badge badge-green">good first issue</span>
+              <span class="badge badge-blue">documentation</span>
+              <span class="badge badge-yellow">effort: 30min</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p>Acceptance Criteria（4 项）：</p>
+      <pre><span class="comment">- [ ] Create README.zh-CN.md in repo root</span>
+<span class="comment">- [ ] Translate all sections accurately</span>
+<span class="comment">- [ ] Keep same structure as English README</span>
+<span class="comment">- [ ] Add language badge linking to Chinese version</span></pre>
+    </div>
+  `;
+}
+
+function renderClaim(card) {
+  addLog('User: commenting /claim on issue #191...', 'info');
+  setTimeout(() => addLog('GitHub: 4-hour exclusive window locked for baobao/mkcash', 'ok'), 400);
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="icon icon-user">👤</div>
+      <div class="name">baobao (mkcash)</div>
+      <span class="tag">贡献者</span>
+    </div>
+    <div class="card-body">
+      <p>在 Issue #191 下留言：</p>
+      <pre><span class="cmd">/claim</span></pre>
+      <p style="margin-top:0.5rem;">系统响应：</p>
+      <pre><span class="out">✅ Issue #191 已锁定 4 小时独占窗口</span>
+<span class="out">⏰ 截止时间: ${new Date(Date.now() + 4*3600000).toLocaleTimeString()}</span>
+<span class="comment">📌 到期未提交 PR 将自动解锁</span></pre>
+    </div>
+  `;
+}
+
+function renderWelcome(card) {
+  addLog('Bot: detecting first-time comment on good-first-issue...', 'info');
+  setTimeout(() => addLog('github-actions[bot]: posting welcome message...', 'ok'), 500);
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="icon icon-bot">🤖</div>
+      <div class="name">github-actions[bot]</div>
+      <span class="tag">自动回复</span>
+    </div>
+    <div class="card-body">
+      <p>Newbie Welcome 工作流自动触发 👇</p>
+      <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:1rem;margin:0.75rem 0;">
+        <div style="font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">👋 Welcome to MisakaNet!</div>
+        <div style="color:#8b949e;font-size:0.85rem;">
+          <div>1. 📖 Read the <span style="color:#58a6ff;">CONTRIBUTING.md</span> guide</div>
+          <div>2. ✋ <span style="color:#d29922;">/claim</span> this issue — 4h exclusive window</div>
+          <div>3. 💻 Implement with <code>git commit -s</code></div>
+          <div>4. 📤 Submit a PR — CI audits automatically</div>
+          <div style="margin-top:0.5rem;color:#8b949e;">⭐ Star the repo to help others discover it!</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderFork(card) {
+  addLog('User: forking repository...', 'info');
+  setTimeout(() => addLog('User: git clone git@github.com:mkcash/MisakaNet.git', 'info'), 400);
+  setTimeout(() => addLog('User: git checkout -b fix/chinese-readme', 'info'), 700);
+  setTimeout(() => addLog('User: creating README.zh-CN.md...', 'info'), 1000);
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="icon icon-user">👤</div>
+      <div class="name">baobao (mkcash)</div>
+      <span class="tag">本地开发</span>
+    </div>
+    <div class="card-body">
+      <pre><span class="comment"># Fork & Clone</span>
+<span class="cmd">gh repo fork</span> Ikalus1988/MisakaNet --clone
+<span class="cmd">cd</span> MisakaNet
+<span class="cmd">git checkout -b</span> fix/chinese-readme
+
+<span class="comment"># 修改内容</span>
+<span class="cmd">vim</span> README.zh-CN.md
+<span class="cmd">vim</span> README.md         <span class="comment"># 加中文版本徽章</span>
+
+<span class="comment"># 运行测试确认不破坏现有功能</span>
+<span class="cmd">pytest tests/</span>
+<span class="out">✅ All tests passed</span></pre>
+    </div>
+  `;
+}
+
+function renderPR(card) {
+  addLog('User: git add && git commit -s...', 'info');
+  setTimeout(() => addLog('User: git push origin fix/chinese-readme', 'info'), 400);
+  setTimeout(() => addLog('User: creating pull request...', 'info'), 700);
+  setTimeout(() => addLog('CI: triggered by pull_request:opened event', 'info'), 1000);
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="icon icon-user">👤</div>
+      <div class="name">baobao (mkcash)</div>
+      <span class="tag">提交 PR</span>
+    </div>
+    <div class="card-body">
+      <pre><span class="comment"># Git 提交</span>
+<span class="cmd">git add</span> README.zh-CN.md README.md
+<span class="cmd">git commit -s -m</span> "feat: add Chinese (zh-CN) translation of README.md"
+<span class="cmd">git push origin</span> fix/chinese-readme
+
+<span class="comment"># PR 已创建</span>
+<span class="out">→ https://github.com/Ikalus1988/MisakaNet/pull/196</span></pre>
+      <div style="background:#0d1117;border:1px solid #30363d;border-radius:6px;padding:0.75rem;margin-top:0.5rem;">
+        <div style="font-weight:600;">🔀 fix(#191): good first issue: Add Chinese (zh-CN) translation of README.md</div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <span class="badge badge-yellow">等待 CI</span>
+          <span class="badge badge-blue">DCO 待检查</span>
+          <span class="badge badge-blue">audit 待检查</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDCO(card) {
+  addLog('DCO Check: scanning commits for Signed-off-by...', 'info');
+  setTimeout(() => addLog('DCO Check: commits: 1 | all signed-off ✅', 'ok'), 500);
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="icon icon-ci">🔒</div>
+      <div class="name">DCO Check 工作流</div>
+      <span class="tag">自动门禁</span>
+    </div>
+    <div class="card-body">
+      <div class="check-row">
+        <span class="status status-pass">✓</span>
+        <span>Commit <code>abc1234</code> — <span class="success">Signed-off-by: mkcash &lt;mkcash@users.noreply.github.com&gt;</span></span>
+      </div>
+      <div style="margin-top:0.75rem;">
+        <span class="badge badge-green">✅ DCO 检查通过</span>
+      </div>
+      <pre style="margin-top:0.5rem;"><span class="out">✅ All commits have Signed-off-by.</span>
+<span class="comment"># 如果 DCO 失败，bot 会自动留言：</span>
+<span class="err">❌ Commit xyz7890 is missing Signed-off-by:</span>
+<span class="comment">→ github-actions[bot] 发布修复指引 + ⭐ 提示</span></pre>
+    </div>
+  `;
+}
+
+function renderAudit(card) {
+  addLog('Misaka Network Agent Auditor: running full CI suite...', 'info');
+  setTimeout(() => addLog('Quality Score: 85/100 — PASS', 'ok'), 500);
+  setTimeout(() => addLog('PR Size: 2 files, 124 additions — OK', 'ok'), 800);
+  setTimeout(() => addLog('Test Suite: pytest — ✅ PASS, coverage 82%', 'ok'), 1100);
+  setTimeout(() => addLog('Shadow Branch: isolated eval — ✅ clean', 'ok'), 1400);
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="icon icon-ci">🧪</div>
+      <div class="name">Misaka Network Agent Auditor</div>
+      <span class="tag">自动化审计</span>
+    </div>
+    <div class="card-body">
+      <div class="check-row">
+        <span class="status status-pass">✓</span>
+        <span style="flex:1;">Agent Quality Score</span>
+        <span class="badge badge-green">85/100</span>
+      </div>
+      <div class="check-row">
+        <span class="status status-pass">✓</span>
+        <span style="flex:1;">PR Size Check (2 files, +124)</span>
+        <span class="badge badge-green">OK</span>
+      </div>
+      <div class="check-row">
+        <span class="status status-pass">✓</span>
+        <span style="flex:1;">Test Suite (pytest — 82% coverage)</span>
+        <span class="badge badge-green">PASS</span>
+      </div>
+      <div class="check-row">
+        <span class="status status-pass">✓</span>
+        <span style="flex:1;">Shadow Branch Isolation</span>
+        <span class="badge badge-green">CLEAN</span>
+      </div>
+      <div class="check-row">
+        <span class="status status-pass">✓</span>
+        <span style="flex:1;">DCO / Signed-off-by</span>
+        <span class="badge badge-green">PASS</span>
+      </div>
+      <div style="margin-top:0.75rem;padding:0.5rem;background:#0d1117;border-radius:6px;border:1px solid #21262d;">
+        <span class="success">✅ All checks passed — Auto-Merge Gate ready</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderMerge(card) {
+  addLog('Human maintainer: reviewing PR #196...', 'info');
+  setTimeout(() => addLog('Human maintainer: all AC checked, tests passing — merging...', 'ok'), 500);
+  setTimeout(() => addLog('Human maintainer: posting thank-you comment with ⭐ prompt', 'ok'), 800);
+  card.innerHTML = `
+    <div class="card-header">
+      <div class="icon icon-gh">✅</div>
+      <div class="name">Ikalus1988 (Maintainer)</div>
+      <span class="tag">人类终审</span>
+    </div>
+    <div class="card-body">
+      <div style="text-align:center;padding:1rem 0;">
+        <div style="font-size:3rem;margin-bottom:0.5rem;">🎉</div>
+        <div style="font-size:1.2rem;font-weight:600;color:#3fb950;">PR #196 merged into main!</div>
+        <div style="color:#8b949e;margin-top:0.25rem;">fix(#191): good first issue — Chinese README translation</div>
+      </div>
+
+      <div style="background:#0d1117;border:1px solid #21262d;border-radius:6px;padding:0.75rem;margin:0.75rem 0;">
+        <div style="color:#8b949e;font-size:0.8rem;">Maintainer 评论：</div>
+        <div style="margin-top:0.3rem;font-style:italic;">
+          "Great job! Clean translation, all AC satisfied. Welcome to the MisakaNet community! 🚀"
+        </div>
+        <div style="margin-top:0.5rem;color:#8b949e;font-size:0.8rem;">
+          ⭐ If you find this project useful, consider starring the repo!
+        </div>
+      </div>
+
+      <div class="node-graph">
+        <div class="node-item">发现 Issue<div class="num">🔍</div></div>
+        <span class="arrow">→</span>
+        <div class="node-item">Claim<div class="num">✋</div></div>
+        <span class="arrow">→</span>
+        <div class="node-item">开发<div class="num">💻</div></div>
+        <span class="arrow">→</span>
+        <div class="node-item">PR<div class="num">📤</div></div>
+        <span class="arrow">→</span>
+        <div class="node-item">CI<div class="num">🧪</div></div>
+        <span class="arrow">→</span>
+        <div class="node-item" style="border-color:#3fb950;">Merged!<div class="num">✅</div></div>
+      </div>
+    </div>
+  `;
+}
+
+function updateControls() {
+  const c = document.getElementById('controls');
+  const isLast = currentStep === STEPS.length - 1;
+  const isFirst = currentStep === 0;
+  c.innerHTML = `
+    <button class="btn" onclick="goStep(-1)" ${isFirst ? 'disabled style="opacity:0.4"' : ''}>← 上一步</button>
+    ${!autoMode ?
+      `<button class="btn" onclick="toggleAuto()">▶ 自动播放</button>` :
+      `<button class="btn btn-primary" onclick="toggleAuto()">⏸ 暂停</button>`
+    }
+    <button class="btn btn-primary" onclick="goStep(1)" ${isLast ? 'disabled style="opacity:0.5"' : ''}>下一步 →</button>
+    ${isLast ? '<button class="btn" onclick="resetJourney()">🔄 重新开始</button>' : ''}
+  `;
+}
+
+function goStep(dir) {
+  if (autoMode && dir > 0) { stopAuto(); }
+  const next = currentStep + dir;
+  if (next < 0 || next >= STEPS.length) return;
+  clearLog();
+  renderStep(next);
+}
+
+function toggleAuto() {
+  if (autoMode) { stopAuto(); }
+  else { startAuto(); }
+}
+
+function startAuto() {
+  autoMode = true;
+  updateControls();
+  if (currentStep >= STEPS.length - 1) { resetJourney(); return; }
+  clearLog();
+  renderStep(currentStep + 1);
+  autoTimer = setTimeout(() => {
+    if (currentStep < STEPS.length - 1 && autoMode) startAuto();
+    else stopAuto();
+  }, 3000);
+}
+
+function stopAuto() {
+  autoMode = false;
+  if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+  updateControls();
+}
+
+function resetJourney() {
+  stopAuto();
+  clearLog();
+  renderStep(0);
+}
+
+// Init
+renderStep(0);
+</script>
+</body>
+</html>
