@@ -1,14 +1,16 @@
-"""MisakaNet 搜索引擎 — BM25 + 元数据加权 + 分层缓存。"""
+"""MisakaNet 搜索引擎 — BM25 + 元数据加权 + 分层缓存。
+BM25 核心算法委托给 misakanet-core 包。
+"""
 import sys
 import json
-import math
 import re
 import time
 import sqlite3
 from pathlib import Path
 from typing import Optional
-from collections import Counter
 from dataclasses import dataclass, field
+
+from misakanet_core import BM25 as CoreBM25, ScoredDocument, tokenize as core_tokenize
 
 REPO = Path(__file__).resolve().parent.parent.parent
 LESSONS = REPO / "lessons"
@@ -191,49 +193,28 @@ def _search_cached(query: str, docs: list[CachedDoc],
 
 
 def _tokenize(text: str) -> list[str]:
-    t = re.sub(r'[^\w\s\u4e00-\u9fff]', ' ', text.lower())
-    tokens = []
-    for part in t.split():
-        if re.search(r'[\u4e00-\u9fff]', part):
-            for ch in part:
-                tokens.append(ch)
-        else:
-            tokens.append(part)
-    return tokens
+    """Tokenize using misakanet-core engine."""
+    return core_tokenize(text)
 
 
 def _compute_bm25_scores(query: str, docs: list[CachedDoc]) -> list[float]:
-    query_tokens = _tokenize(query)
+    """BM25 scoring delegated to misakanet-core."""
+    query_tokens = core_tokenize(query)
     if not query_tokens:
         return [0.0] * len(docs)
-    N = len(docs)
-    doc_tfs = []
-    doc_lengths = []
-    for d in docs:
-        tokens = _tokenize(d.content)
-        doc_tfs.append(Counter(tokens))
-        doc_lengths.append(len(tokens))
-    avg_doc_len = sum(doc_lengths) / max(N, 1)
-    df = Counter()
-    for tf in doc_tfs:
-        for t in query_tokens:
-            if tf.get(t, 0) > 0:
-                df[t] = df.get(t, 0) + 1
-    scores = []
-    for i in range(N):
-        score = 0.0
-        tf_counter = doc_tfs[i]
-        doc_len = doc_lengths[i]
-        for term in query_tokens:
-            tf = tf_counter.get(term, 0)
-            if tf == 0:
-                continue
-            idf = math.log((N - df.get(term, 0) + 0.5) / (df.get(term, 0) + 0.5) + 1.0)
-            numerator = tf * (K1 + 1)
-            denominator = tf + K1 * (1 - B + B * doc_len / max(avg_doc_len, 1))
-            score += idf * numerator / denominator
-        scores.append(score)
-    return scores
+
+    # Build ScoredDocument list for core engine
+    scored_docs = [
+        ScoredDocument(d.filename, core_tokenize(d.content))
+        for d in docs
+    ]
+
+    engine = CoreBM25(scored_docs)
+    results = engine.search(query, top_k=len(docs))
+
+    # Map results back to original order
+    result_scores = {r.doc_id: r.score for r in results}
+    return [result_scores.get(d.filename, 0.0) for d in docs]
 
 
 def _metadata_bonus(query: str, doc: CachedDoc) -> float:

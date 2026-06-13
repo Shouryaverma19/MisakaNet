@@ -15,9 +15,9 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 
 # ── 路径 ───────────────────────────────
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).resolve().parent.parent  # project root
 BASE_FACE = BASE_DIR / "misaka-face.jpg"
-PIXEL_ART_SCRIPT = BASE_DIR.parent / "creative" / "pixel-art" / "scripts" / "pixel_art.py"
+PIXEL_ART_SCRIPT = BASE_DIR / "creative" / "pixel-art" / "scripts" / "pixel_art.py"
 if not PIXEL_ART_SCRIPT.exists():
     PIXEL_ART_SCRIPT = Path(os.environ.get("PIXEL_ART_SCRIPT", ""))
     if not PIXEL_ART_SCRIPT.exists():

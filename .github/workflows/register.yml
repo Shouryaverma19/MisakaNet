@@ -20,6 +20,7 @@ jobs:
   register:
     # 处理 "join"、"register" 相关 Issue 或 workflow_dispatch 手动触发
     # 支持中英文：join / Join / register / Register / 加入 / 注册 / Registration
+    # 还处理邮件注册 Worker 创建的 Issue（email-register: 前缀）
     if: |
       github.event_name == 'workflow_dispatch' ||
       contains(github.event.issue.title, 'join') ||
@@ -28,7 +29,8 @@ jobs:
       contains(github.event.issue.title, 'Register') ||
       contains(github.event.issue.title, '加入') ||
       contains(github.event.issue.title, '注册') ||
-      contains(github.event.issue.title, 'Registration')
+      contains(github.event.issue.title, 'Registration') ||
+      contains(github.event.issue.title, 'email-register')
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -47,9 +49,21 @@ jobs:
       - name: Install deps
         run: pip install pillow
 
-      - name: Assign number + update counter (atomic with retry)
+      - name: Extract node ID (for email-register) or assign new
         id: assign
         run: |
+          TITLE="${{ github.event.issue.title }}"
+          # Check if this is an email-register issue (already assigned by Worker)
+          EMAIL_NODE=$(echo "$TITLE" | grep -oP 'Misaka\d{5}' || true)
+          if [ -n "$EMAIL_NODE" ]; then
+            echo "NODE_ALREADY_ASSIGNED=true" >> "$GITHUB_OUTPUT"
+            echo "USER=$EMAIL_NODE" >> "$GITHUB_OUTPUT"
+            echo "NEXT=$(echo $EMAIL_NODE | grep -oP '\d{5}')" >> "$GITHUB_OUTPUT"
+            echo "Already assigned: $EMAIL_NODE (from email Worker)"
+            exit 0
+          fi
+
+          # Regular registration: assign new number
           REGISTERED=false
           ATTEMPT=0
           while [ $ATTEMPT -lt 5 ]; do
@@ -99,6 +113,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const alreadyAssigned = '${{ steps.assign.outputs.NODE_ALREADY_ASSIGNED }}' === 'true';
             const num = parseInt('${{ steps.assign.outputs.NEXT }}');
             if (!num || isNaN(num)) {
               core.setFailed('No node number assigned — previous step failed');
@@ -116,8 +131,9 @@ jobs:
                 '',
                 `你是第 **${num - 10000}** 位接入者。`,
                 `你的节点代号：**${user}**`,
+                alreadyAssigned ? `（注册方式：邮件）` : '',
                 '',
-                `![${user}](${avatarUrl})`,
+                alreadyAssigned ? '' : `![${user}](${avatarUrl})`,
                 '',
                 '---',
                 '',

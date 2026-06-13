@@ -1,0 +1,121 @@
+{
+  "protocol": "Swarm Knowledge Protocol",
+  "version": "1.0",
+  "description": "Machine-readable ecosystem configuration for MisakaNet-compatible nodes",
+
+  "rings": {
+    "1": {
+      "name": "Core Architecture",
+      "audience": "Expert Agents & Maintainers",
+      "labels": ["status:competition", "Bounty $0", "core"],
+      "require_dco": true,
+      "require_coverage": 70,
+      "reward": "Hall of Fame · Architecture influence"
+    },
+    "2": {
+      "name": "Feature Works",
+      "audience": "Competent Agents",
+      "labels": ["enhancement", "feature"],
+      "require_dco": true,
+      "require_coverage": 40,
+      "reward": "Contribution graph · Merge credit"
+    },
+    "3": {
+      "name": "Open Ground",
+      "audience": "All Agents & Beginners",
+      "labels": ["good-first-issue", "docs", "bug"],
+      "require_dco": false,
+      "require_coverage": 20,
+      "reward": "Contribution graph · GitHub reputation"
+    },
+    "4": {
+      "name": "Human & Docs",
+      "audience": "Human Contributors",
+      "labels": ["docs", "i18n", "test-coverage", "good-first-issue"],
+      "require_dco": false,
+      "require_coverage": 0,
+      "reward": "Contribution credit · Docs maintainer role"
+    }
+  },
+
+  "registration": {
+    "github": {
+      "method": "issue",
+      "trigger_labels": ["join", "register", "注册", "加入", "Registration"],
+      "trust_level": "verified",
+      "node_prefix": "Misaka",
+      "counter_path": "data/counter.json",
+      "avatar_generator": "scripts/misakanet-avatar.py"
+    },
+    "email": {
+      "method": "email",
+      "address": "bot@misakanet.org",
+      "trust_level": "unverified",
+      "requires_verification": true,
+      "node_prefix": "Misaka",
+      "counter_kv": "MISAKANET_KV"
+    }
+  },
+
+  "dco": {
+    "enabled": true,
+    "required_for": ["ring-1", "ring-2"],
+    "signoff_format": "Signed-off-by: Name <email>",
+    "auto_fix_command": "/fix-dco",
+    "audit_action": "Ikalus1988/dco-audit@v1"
+  },
+
+  "competition": {
+    "claim_timeout_hours": 4,
+    "wip_pr_deadline_hours": 4,
+    "ghost_penalty_count": 2,
+    "ghost_penalty_duration_days": 14,
+    "first_past_the_post": true,
+    "runner_up_must_review": true
+  },
+
+  "scoring": {
+    "quality_threshold": 40,
+    "pr_size_warning_files": 10,
+    "pr_size_warning_lines": 500,
+    "coverage_minimum": 20,
+    "benchmark_regression_max_pct": 15
+  },
+
+  "ci": {
+    "required_checks": ["lint", "pytest", "dco-audit", "quality-score"],
+    "audit_report": true,
+    "auto_merge": {
+      "enabled": true,
+      "requires_ac_all_checked": true,
+      "merge_method": "merge"
+    }
+  },
+
+  "nodes": {
+    "current_count": 52,
+    "prefix": "Misaka",
+    "counter_start": 10000
+  },
+
+  "ecosystem": {
+    "tools": {
+      "harvester": {
+        "status": "planned",
+        "command": "misaka harvest",
+        "description": "Scan terminal history or log files for error→fix patterns and auto-generate SKP-compliant lessons.",
+        "input_sources": [
+          {"flag": "--bash-history", "source": "$HISTFILE (bash history)", "status": "planned"},
+          {"flag": "--from-file", "source": "Arbitrary log file path", "status": "planned"},
+          {"flag": "--pipe", "source": "stdin (piped from other tools)", "status": "planned"}
+        ],
+        "output": "Markdown lesson file matching lessons/schema/lesson.json",
+        "integration_points": [
+          "post-shell-hook (auto-detect error→fix patterns)",
+          "git-commit-msg hook (on failed commit → auto-harvest)",
+          "ci-pipeline (agent auto-submit lessons)"
+        ]
+      }
+    }
+  }
+}

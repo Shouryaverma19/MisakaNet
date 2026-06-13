@@ -9,6 +9,9 @@ description = "AI Agent 分布式经验知识共享系统 — 踩坑一次，全
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
+dependencies = [
+    "misakanet-core>=2.7.0",
+]
 keywords = ["ai-agent", "knowledge-base", "bm25", "rag", "distributed"]
 classifiers = [
     "Development Status :: 4 - Beta",

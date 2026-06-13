@@ -1,8 +1,22 @@
 #!/usr/bin/env python3
-"""CLI thin wrapper — core implementation in misakanet/search/engine.py"""
+"""CLI thin wrapper — core implementation in misakanet/search/engine.py
+
+Ecosystem links:
+    from misakanet_core import BM25, tokenize, rrf
+"""
 import sys
 import time
-from misakanet.search.engine import *
+
+# ── 生态核心声明 ──
+from misakanet_core import BM25 as _  # noqa: F401  (ecosystem assertion)
+
+try:
+    from misakanet.search.engine import *
+except ImportError as e:
+    if "misakanet_core" in str(e):
+        print("Error: 'misakanet-core' is required. Run: pip install misakanet-core", file=sys.stderr)
+        sys.exit(1)
+    raise
 from misakanet.tools.lesson_scorer import DEFAULT_TELEMETRY, format_lesson_scores, score_lessons
 
 
@@ -19,6 +33,19 @@ def _ensure_utf8_stdout():
 def main():
     _ensure_utf8_stdout()
     args = sys.argv[1:]
+    if "--harvest" in args or args[:1] == ["harvest"]:
+        print("🌾 misaka harvest: Knowledge Harvester (planned)")
+        print()
+        print("  Auto-generate SKP-compliant lessons from terminal history or logs.")
+        print()
+        print("  Planned interfaces:")
+        print("    misaka harvest --bash-history    Scan $HISTFILE")
+        print("    misaka harvest --from-file <path>  Parse a log file")
+        print("    misaka harvest --pipe             Accept stdin")
+        print()
+        print("  See misaka-protocol.json → ecosystem.tools.harvester for spec.")
+        print("  Status: planned — not yet implemented.")
+        return
     if "--score" in args:
         top_k = None
         telemetry_path = DEFAULT_TELEMETRY

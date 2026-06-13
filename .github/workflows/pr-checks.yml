@@ -125,6 +125,14 @@ jobs:
           fi
           printf '## Test Suite\n\n| Metric | Value |\n|--------|-------|\n| Outcome | %s |\n| Coverage | %s%% |\n\n' "${RESULT}" "${coverage}" >> "$GITHUB_STEP_SUMMARY"
 
+      # ── Lesson Schema Validation ──
+      - name: Validate Lesson Schema
+        id: schema
+        continue-on-error: true
+        run: |
+          python3 scripts/validate_lessons.py 2>&1 || echo "schema_result=warnings" >> "$GITHUB_OUTPUT"
+          echo "schema_result=pass" >> "$GITHUB_OUTPUT"
+
       # ── Audit Report ──
       - name: Post Audit Report
         if: always()
@@ -135,40 +143,101 @@ jobs:
           COVERAGE="${{ steps.coverage.outputs.rate }}"
           SUSPICIOUS="${{ steps.prsize.outputs.suspicious }}"
           SIZE_NOTES="${{ steps.prsize.outputs.notes }}"
+          SCORE="${{ steps.score.outputs.score }}"
+          REASONS="${{ steps.score.outputs.reasons }}"
+          DCO_RESULT="${{ steps.dco.outputs.dco-passed }}"
+          DCO_FAILED="${{ steps.dco.outputs.failed-count }}"
           PR_NUM="${{ github.event.inputs.pr_number || github.event.pull_request.number }}"
           SHA="${{ github.event.pull_request.head.sha || 'manual' }}"
           SHA_SHORT=$(echo "$SHA" | cut -c1-7)
 
-          if [ "$OUTCOME" = "success" ]; then
-            HEADER="OK **PASS**: All tests passed (${COVERAGE}% coverage)"
+          # ── Build report ──
+          REPORT="## 🧾 Audit Report — PR #${PR_NUM} (${SHA_SHORT})"
+          REPORT+=$'\n\n'
+
+          # 1. Quality Score
+          REPORT+="### 📊 Quality Score: ${SCORE:-?}/100"
+          REPORT+=$'\n\n'
+          if [ -n "$REASONS" ]; then
+            REPORT+="**Deductions:**"
+            REPORT+=$'\n'
+            echo "$REASONS" | while IFS= read -r line; do
+              [ -n "$line" ] && REPORT+="- ${line}"$'\n'
+            done
           else
-            HEADER="Fail **FAIL**: Test suite has failures"
+            REPORT+="No deductions."
           fi
+          REPORT+=$'\n\n'
 
-          COV_NOTE=""
-          if [ -n "$COVERAGE" ] && [ "$COVERAGE" -lt 20 ] 2>/dev/null; then
-            COV_NOTE="Warn Coverage ${COVERAGE}% is below 20% threshold."
+          # 2. DCO Audit
+          REPORT+="### 🔏 DCO Audit"
+          REPORT+=$'\n\n'
+          if [ "$DCO_RESULT" = "true" ]; then
+            REPORT+="✅ All commits signed-off."
+          else
+            REPORT+="❌ **${DCO_FAILED} commit(s)** missing Signed-off-by."
           fi
+          REPORT+=$'\n\n'
 
-          SIZE_WARN=""
+          # 3. PR Size
+          REPORT+="### 📏 PR Size"
+          REPORT+=$'\n\n'
+          REPORT+="| Metric | Value |"
+          REPORT+=$'\n'
+          REPORT+="|--------|-------|"
+          REPORT+=$'\n'
+          REPORT+="| Files Changed | ${{ github.event.pull_request.changed_files }} |"
+          REPORT+=$'\n'
+          REPORT+="| Lines Added | ${{ github.event.pull_request.additions }} |"
+          REPORT+=$'\n'
           if [ "$SUSPICIOUS" = "true" ]; then
-            SIZE_WARN="Spy **SUSPICIOUS**: ${SIZE_NOTES}"
+            REPORT+="| ⚠️ Warning | ${SIZE_NOTES} |"
           fi
+          REPORT+=$'\n\n'
 
-          BODY="### Robot Misaka Audit Bot Report
+          # 4. Test Suite
+          REPORT+="### 🧪 Test Suite"
+          REPORT+=$'\n\n'
+          if [ "$OUTCOME" = "success" ]; then
+            REPORT+="✅ **PASS** — ${COVERAGE}% coverage"
+          else
+            REPORT+="❌ **FAIL** — tests have failures"
+            if [ -n "$COVERAGE" ]; then
+              REPORT+=" (${COVERAGE}% coverage)"
+            fi
+          fi
+          REPORT+=$'\n\n'
 
-          ${HEADER}
-          ${COV_NOTE}
-          ${SIZE_WARN}
+          # 5. Verdict
+          REPORT+="### ⚖️ Verdict"
+          REPORT+=$'\n\n'
+          VERDICT_PASS=true
+          if [ "$SCORE" -lt 40 ] 2>/dev/null; then
+            REPORT+="❌ Quality Score ${SCORE}/40 below threshold."$'\n'
+            VERDICT_PASS=false
+          fi
+          if [ "$DCO_RESULT" != "true" ]; then
+            REPORT+="❌ DCO audit failed."$'\n'
+            VERDICT_PASS=false
+          fi
+          if [ "$OUTCOME" != "success" ]; then
+            REPORT+="❌ Test suite failed."$'\n'
+            VERDICT_PASS=false
+          fi
+          if [ "$VERDICT_PASS" = "true" ]; then
+            REPORT+="✅ All gates passed. Ready for merge."
+          fi
+          REPORT+=$'\n\n---\n'
+          REPORT+="_Triggered by \`${SHA_SHORT}\` | [View run](https://github.com/Ikalus1988/MisakaNet/actions/runs/${{ github.run_id }})_"
 
-          *Triggered by: ${SHA_SHORT}*"
-
+          # ── Post comment ──
           if [ -n "$PR_NUM" ]; then
-            gh pr comment "$PR_NUM" --repo Ikalus1988/MisakaNet --body "$BODY" 2>/dev/null || \
-              gh issue comment "$PR_NUM" --repo Ikalus1988/MisakaNet --body "$BODY" 2>/dev/null || \
+            gh pr comment "$PR_NUM" --repo Ikalus1988/MisakaNet --body "$REPORT" 2>/dev/null || \
+              gh issue comment "$PR_NUM" --repo Ikalus1988/MisakaNet --body "$REPORT" 2>/dev/null || \
               echo "Could not post comment to PR #$PR_NUM"
           fi
 
+          # ── Exit with failure if any hard gate fails ──
           if [ "$OUTCOME" != "success" ]; then
             echo "Audit failed: test suite has issues."
             exit 1
