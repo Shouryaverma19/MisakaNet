@@ -4,64 +4,52 @@ on:
   issues:
     types: [opened, edited]
 
-permissions:
-  issues: write
-
 jobs:
-  validate:
+  gate:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Validate Issue & Apply Labels
+      - uses: actions/github-script@v7
+        id: validate
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUM: ${{ github.event.issue.number }}
-          ISSUE_BODY: ${{ github.event.issue.body }}
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-        run: |
+        with:
+          script: |
+            const issueNum = context.issue.number;
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNum,
+            });
+            const body = issue.body || '';
+            const title = issue.title || '';
 
-          echo "=== Issue Quality Gate: #$ISSUE_NUM ==="
+            console.log(`=== Issue Quality Gate: #${issueNum} ===`);
 
-          # 检查是否包含 AC 清单（硬性验收标准）
-          HAS_AC=false
-          HAS_CHECKBOX=false
+            let HAS_AC = false;
+            let HAS_CHECKBOX = false;
 
-          # 检测 AC 标记
-          if echo "$ISSUE_BODY" | grep -qi "acceptance criteria\|AC\|验收标准\|MANDATORY"; then
-            HAS_AC=true
-            echo "  ✅ AC section found"
-          fi
+            if (/acceptance criteria|AC|验收标准|MANDATORY/i.test(body)) {
+              HAS_AC = true;
+              console.log('  AC section found');
+            }
 
-          # 检测复选框
-          if echo "$ISSUE_BODY" | grep -q "\[ \]\|\[x\]\|\[X\]"; then
-            HAS_CHECKBOX=true
-            echo "  ✅ Checkboxes found"
-          fi
+            if (/\[ \]|\[x\]|\[X\]/i.test(body)) {
+              HAS_CHECKBOX = true;
+              console.log('  Checkbox list found');
+            }
 
-          # 检测是否包含 Bounty 标签
-          HAS_BOUNTY=false
-          if echo "$ISSUE_TITLE" | grep -qi "\[bounty\]"; then
-            HAS_BOUNTY=true
-            echo "  ✅ Bounty tag found in title"
-          fi
+            let labels = [];
+            if (!HAS_AC || !HAS_CHECKBOX) labels.push('needs-ac');
+            if (HAS_AC && HAS_CHECKBOX) labels.push('ready');
 
-          # 应用标签
-          if [ "$HAS_AC" = true ] && [ "$HAS_CHECKBOX" = true ]; then
-            # 完整 Issue → 标记为 ready
-            gh issue edit "$ISSUE_NUM" --repo Ikalus1988/MisakaNet \
-              --add-label "status: ready" 2>/dev/null || true
-            echo "  → Label: status: ready"
-          else
-            # 缺少 AC → 标记为 needs-triage
-            gh issue edit "$ISSUE_NUM" --repo Ikalus1988/MisakaNet \
-              --add-label "status: needs-triage" 2>/dev/null || true
-            echo "  → Label: status: needs-triage (missing AC or checkboxes)"
-          fi
-
-          if [ "$HAS_BOUNTY" = true ]; then
-            gh issue edit "$ISSUE_NUM" --repo Ikalus1988/MisakaNet \
-              --add-label "bounty" 2>/dev/null || true
-          fi
-
-          echo "=== Gate complete ==="
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNum,
+                labels: labels,
+              });
+              console.log(`Labels applied: ${labels.join(', ')}`);
+            }

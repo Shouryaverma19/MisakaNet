@@ -55,22 +55,28 @@ jobs:
               ].join('\n')
             });
 
-      - name: Checkout PR branch (same-repo only)
+      - name: Checkout PR branch (same-repo only, with path isolation)
         if: steps.pr.outputs.isFork != 'true'
         uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
           fetch-depth: 0
+          path: pr-code
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git safe directory
+        run: git config --global safe.directory '*'
 
       - name: Configure git (same-repo only)
         if: steps.pr.outputs.isFork != 'true'
+        working-directory: pr-code
         run: |
           git config user.name "misakanet-bot"
           git config user.email "bot@misakanet.dev"
 
       - name: Rebase with signoff (same-repo only)
         if: steps.pr.outputs.isFork != 'true'
+        working-directory: pr-code
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -95,6 +101,7 @@ jobs:
 
       - name: Force push (same-repo only)
         if: steps.pr.outputs.isFork != 'true'
+        working-directory: pr-code
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

@@ -117,16 +117,23 @@ async function handleApiRequest(pathWithQuery, env) {
   switch (pathname) {
     case "/api/counter":
     case "/api/counter.json": {
-      const data = await getWithCache(env, "proxy:counter", () =>
-        fetchFromGitHub(token, "data/counter.json")
-      );
+      // 优先从 KV 读取（邮件/Web 注册的最新计数），fallback 到 GitHub data 分支
+      const data = await getWithCache(env, "proxy:counter", async () => {
+        if (env.MISAKANET_KV) {
+          const kvCounter = await env.MISAKANET_KV.get("node_counter", "text");
+          if (kvCounter) {
+            return { current: parseInt(kvCounter), updated: new Date().toISOString().slice(0, 10) };
+          }
+        }
+        return fetchFromGitHub(token, "data/counter.json");
+      });
       return jsonResponse(data);
     }
 
     case "/api/lessons":
     case "/api/lessons.json": {
       const data = await getWithCache(env, "proxy:lessons", () =>
-        fetchFromGitHub(token, "data/lessons.json")
+        fetchFromGitHub(token, "lessons.json", "data")
       );
       return jsonResponse(data);
     }

@@ -1,22 +1,16 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "misakanet-email-register",
+  "name": "email-register",
   "compatibility_date": "2026-06-01",
   "main": "src/index.js",
   "compatibility_flags": ["nodejs_compat"],
   "kv_namespaces": [
     {
       "binding": "MISAKANET_KV",
-      "id": "YOUR_KV_NAMESPACE_ID"
+      "id": "d5fb6b0797b84d17b0586fb982231ffe"
     }
   ],
   "vars": {
     "GH_REPO": "Ikalus1988/MisakaNet"
-  },
-  "email_routes": [
-    {
-      "name": "node-registration",
-      "address": "bot@misakanet.org"
-    }
-  ]
+  }
 }

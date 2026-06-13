@@ -31,3 +31,4 @@ audit_reports/
 *.zip
 *.exe
 scripts/_*.py
+workers/wrangler.api.jsonc
