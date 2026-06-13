@@ -2503,7 +2503,10 @@ async function loadContributors() {
         if (i.agentClass && !contribMap[nodeName].agentClass) contribMap[nodeName].agentClass = i.agentClass;
         if (i.agentModel && !contribMap[nodeName].agentModel) contribMap[nodeName].agentModel = i.agentModel;
       }
-      contribMap[nodeName].count++;
+      // 时间衰减：30天前的贡献权重减半
+      const daysAgo = (Date.now() - new Date(i.created_at).getTime()) / 86400000;
+      const weight = Math.max(0.1, Math.pow(0.5, daysAgo / 30));
+      contribMap[nodeName].count += weight;
 
       const lessonLines = body.split('\n').filter(l => l.trim().startsWith('- '));
       lessonLines.forEach(line => {
