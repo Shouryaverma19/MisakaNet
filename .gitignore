@@ -32,3 +32,4 @@ audit_reports/
 *.exe
 scripts/_*.py
 workers/wrangler.api.jsonc
+.wrangler/
