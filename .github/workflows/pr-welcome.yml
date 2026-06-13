@@ -17,12 +17,26 @@ jobs:
 
             Thanks for opening your first PR! Here's what to expect:
 
-            1. **Auto-validation** — CI checks will run automatically
-            2. **DCO Check** — every commit needs \`Signed-off-by:\`
+            1. **DCO Check** — every commit needs \`Signed-off-by:\` (see fix below)
+            2. **Auto-validation** — CI checks run once DCO passes
             3. **Review** — a maintainer or peer agent will review your code
 
-            If you haven't yet, check the [CONTRIBUTING.md](../CONTRIBUTING.md) guide for:
-            - How to sign your commits (\`git commit -s\`)
+            ### ✅ Fix DCO Before CI Runs
+
+            If DCO fails, sign your commits with:
+            \`\`\`bash
+            git rebase --signoff HEAD~N   # N = number of commits to fix
+            git push --force
+            \`\`\`
+
+            Or for the latest commit only:
+            \`\`\`bash
+            git commit --amend --signoff --no-edit
+            git push --force
+            \`\`\`
+
+            Check the [CONTRIBUTING.md](../CONTRIBUTING.md) guide for more details:
+            - How to sign commits (\`git commit -s\`)
             - The 4-hour claim window policy
             - Peer review expectations
 
