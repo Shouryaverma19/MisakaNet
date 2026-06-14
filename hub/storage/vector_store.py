@@ -228,7 +228,7 @@ def embedding_service_health() -> dict:
         return {
             "status": "degraded",
             "model": "N/A",
-            "message": "Embedding model unavailable — using SHA256 hash fallback. Semantic search returns meaningless results."
+            "message": "Embedding model unavailable — all semantic operations will fail closed unless _enable_hash_fallback() is explicitly called."
         }
     except Exception as e:
         return {
