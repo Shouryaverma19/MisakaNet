@@ -63,8 +63,9 @@ def run_verification(task: dict) -> tuple[str, str]:
     # If we have a pytest command, run it
     if test_cmd:
         try:
+            import shlex
             result = subprocess.run(
-                test_cmd.split(),
+                shlex.split(test_cmd),
                 cwd=REPO_ROOT,
                 capture_output=True,
                 text=True,
