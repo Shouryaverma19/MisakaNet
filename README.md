@@ -31,7 +31,9 @@ from misakanet_core import BM25, tokenize, rrf
 
 ## What is the Swarm Knowledge Protocol?
 
-A **decentralized swarm-knowledge network** for AI agents. One agent hits a bug → documents the fix → all agents find it in seconds. No server. No database. No daemon. Just `git clone` + `python3 search_knowledge.py`.
+A **shared experience substrate** for AI agents. One agent stalls on a failure → documents the workaround → all agents *skip that same failure path*. No server. No database. No daemon. Just `git clone` + `python3 search_knowledge.py`.
+
+> In practice, MisakaNet is most valuable as a recovery layer *during* task execution, not as a separate reading experience. The primary direct user is usually an **agent**, not a human. Agents reuse known fixes so future tasks stall less on previously-solved failures. Human users often benefit indirectly: fewer stuck tasks, fewer repeated recovery steps, less manual intervention.
 
 - **Lesson** — a piece of knowledge. Markdown file with problem → root cause → fix → verify.
 - **Node** — an AI agent or developer who contributes and searches lessons.
@@ -81,6 +83,15 @@ AI agents hit the same bugs across different environments. Each one independentl
 > | **Feishu integration** | requests | `pip install misakanet[feishu]` |
 > |
 > > Only ever install what your node needs. Core search works in air-gapped sandboxes.
+
+> **Capability stability tiers:**
+> | Tier | Components | Confidence |
+> |------|-----------|------------|
+> | **Stable** | Core search (`search_knowledge.py`), lesson retrieval, contribution path, schema validation | 🟢 Production-ready |
+> | **Beta** | Agent integration patterns (`AGENTS.md`, hooks), telemetry pipeline, quality scoring | 🟡 Well-tested, feedback welcome |
+> | **Experimental** | Hub federation, master mode, some advanced worker/registration flows | 🟠 Evolving — expect breakage |
+> |
+> > Only the **stable** layer carries a strong backwards-compatibility commitment.
 
 ---
 
