@@ -19,12 +19,18 @@ repos:
     hooks:
       - id: check-dco
 
-  # 本地 hook: Lesson Schema 校验
+  # 本地 hook: Lesson Schema + 质量门禁
   - repo: local
     hooks:
       - id: validate-lessons
         name: validate lesson schema
         entry: python3 scripts/validate_lessons.py
+        language: system
+        files: ^lessons/.*\.md$
+        pass_filenames: false
+      - id: check-lesson-quality
+        name: check lesson quality (naming, content, forbidden patterns)
+        entry: python3 scripts/check_lesson_quality.py
         language: system
         files: ^lessons/.*\.md$
         pass_filenames: false

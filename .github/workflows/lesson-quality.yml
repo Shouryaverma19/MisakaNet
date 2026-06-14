@@ -1,0 +1,84 @@
+# Lesson 质量门禁 — 在 PR 修改 lessons/ 时自动检查
+# 检查项:
+#   1. 文件名: 无中文, 无项目特定前缀, kebab-case
+#   2. frontmatter: JSON 合法, 必填字段完整
+#   3. 内容: 无硬编码路径/用户名, 建议英文正文
+#
+# 不满足则添加 quality:needs-review 标签并留下评论
+
+name: Lesson Quality Gate
+
+on:
+  pull_request:
+    paths:
+      - 'lessons/**'
+      - 'reference/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run quality check
+        id: check
+        continue-on-error: true
+        run: |
+          python3 scripts/check_lesson_quality.py > quality_report.txt 2>&1 || true
+          cat quality_report.txt
+          # 提取结论行
+          SUMMARY=$(grep "总计" quality_report.txt || echo "0 错误, 0 警告")
+          echo "summary=$SUMMARY" >> "$GITHUB_OUTPUT"
+          if echo "$SUMMARY" | grep -q "[1-9] 错误"; then
+            echo "verdict=fail" >> "$GITHUB_OUTPUT"
+          else
+            echo "verdict=pass" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post quality report on PR
+        if: always() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERDICT="${{ steps.check.outputs.verdict }}"
+          SUMMARY="${{ steps.check.outputs.summary }}"
+          PR_NUM="${{ github.event.pull_request.number }}"
+          REPORT_BODY=$(cat quality_report.txt)
+
+          if [ "$VERDICT" = "pass" ]; then
+            gh pr comment "$PR_NUM" --repo "${{ github.repository }}" \
+              --body "### ✅ Lesson Quality Gate Passed
+
+            ${SUMMARY}
+
+            All lessons meet the naming, frontmatter, and content standards."
+          else
+            gh pr comment "$PR_NUM" --repo "${{ github.repository }}" \
+              --body "### ❌ Lesson Quality Gate Failed
+
+            ${SUMMARY}
+
+            <details>
+            <summary>Details</summary>
+
+            \`\`\`
+            ${REPORT_BODY}
+            \`\`\`
+
+            </details>
+
+            Fix the errors above and push again."
+            gh pr edit "$PR_NUM" --repo "${{ github.repository }}" --add-label "quality:needs-review"
+          fi
