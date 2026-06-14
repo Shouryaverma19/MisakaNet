@@ -31,169 +31,12 @@
     "updated": "2026-04-01"
   },
   {
-    "id": "bot回复-reasoning-现在pip和pip3都找不到-说明当前环境没有配置python的可",
-    "title": "bot回复 reasoning 现在pip和pip3都找不到 说明当前环境没有配置python的可",
-    "domain": "general",
-    "tags": [],
-    "summary": "---",
-    "url": "lessons/_archive/conversation-dumps/bot回复-reasoning-现在pip和pip3都找不到-说明当前环境没有配置python的可.md",
-    "updated": "2026-04-01"
-  },
-  {
     "id": "config-was-last-written-by-a-newer-openclaw-2026",
     "title": "Config was last written by a newer OpenClaw (2026.",
     "domain": "feishu",
     "tags": [],
     "summary": "[assistant] <think>",
     "url": "lessons/_archive/conversation-dumps/config-was-last-written-by-a-newer-openclaw-2026.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "poc-记录已写入飞书文档末尾-21个块-含-q2-q5-验证结果-修正说明和待办清单-有一个小",
-    "title": "POC 记录已写入飞书文档末尾（21个块，含 Q2/Q5 验证结果、修正说明和待办清单）。 有一个小",
-    "domain": "feishu",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/poc-记录已写入飞书文档末尾-21个块-含-q2-q5-验证结果-修正说明和待办清单-有一个小.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "the-user-sent-a-text-document-fanuc知识库方案-v5-md",
-    "title": "the user sent a text document fanuc知识库方案 v5 md",
-    "domain": "general",
-    "tags": [],
-    "summary": "---",
-    "url": "lessons/_archive/conversation-dumps/the-user-sent-a-text-document-fanuc知识库方案-v5-md.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "the-user-sent-a-text-document-rag知识库完整说明文档-md",
-    "title": "the user sent a text document rag知识库完整说明文档 md",
-    "domain": "general",
-    "tags": [],
-    "summary": "---",
-    "url": "lessons/_archive/conversation-dumps/the-user-sent-a-text-document-rag知识库完整说明文档-md.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "再补充一下-rag助手这两天的一个工作内容-主要就是一个通过让rag知识库来读取我已有的一些工业机器",
-    "title": "再补充一下，RAG助手这两天的一个工作内容，主要就是一个通过让RAG知识库来读取我已有的一些工业机器",
-    "domain": "rag",
-    "tags": [],
-    "summary": "[assistant]",
-    "url": "lessons/_archive/conversation-dumps/再补充一下-rag助手这两天的一个工作内容-主要就是一个通过让rag知识库来读取我已有的一些工业机器.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "另外-rag助手-wiki项目又有新进展-这个项目经过了从一开始的opus-4-6-写了初版之后",
-    "title": "另外，RAG助手， Wiki项目又有新进展。 这个项目经过了从一开始的OPUS 4.6，写了初版之后",
-    "domain": "rag",
-    "tags": [],
-    "summary": "[assistant]",
-    "url": "lessons/_archive/conversation-dumps/另外-rag助手-wiki项目又有新进展-这个项目经过了从一开始的opus-4-6-写了初版之后.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "复盘下你的飞书技能如何提高-并给出方案",
-    "title": "复盘下你的飞书技能如何提高，并给出方案",
-    "domain": "feishu",
-    "tags": [],
-    "summary": "复盘下你的飞书技能如何提高，并给出方案",
-    "url": "lessons/_archive/conversation-dumps/复盘下你的飞书技能如何提高-并给出方案.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "好-控制并发-那就开始布置本开源方案-作为-wsl-的第三个-agent",
-    "title": "好，控制并发，那就开始布置本开源方案，作为 wsl 的第三个 agent",
-    "domain": "feishu",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/好-控制并发-那就开始布置本开源方案-作为-wsl-的第三个-agent.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "容灾方案输出为飞书云文档",
-    "title": "容灾方案输出为飞书云文档",
-    "domain": "feishu",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/容灾方案输出为飞书云文档.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "帮我记一下我今天的日记啊-阈值的日记啊-今天完成了什么工作-然后跟你说完-你整理一下-然后发出来",
-    "title": "帮我记一下我今天的日记啊，阈值的日记啊，今天完成了什么工作，然后跟你说完，你整理一下，然后发出来。",
-    "domain": "rag",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/帮我记一下我今天的日记啊-阈值的日记啊-今天完成了什么工作-然后跟你说完-你整理一下-然后发出来.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "我已将部分工作直接发给hermes-cli助手-你注意检查-不要重复施工",
-    "title": "我已将部分工作直接发给Hermes cli助手，你注意检查，不要重复施工",
-    "domain": "feishu",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/我已将部分工作直接发给hermes-cli助手-你注意检查-不要重复施工.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "按照方案进行测试https-tarot-club-feishu-cn-docx-tkchd3lq",
-    "title": "按照方案进行测试https://tarot-club.feishu.cn/docx/TkcHd3Lq",
-    "domain": "feishu",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/按照方案进行测试https-tarot-club-feishu-cn-docx-tkchd3lq.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "考生1回复-考试执行受阻-未完成作答-执行第一步安装依赖时遇到环境问题-当前运行环境中pip命令不",
-    "title": "考生1回复：考试执行受阻，未完成作答： 执行第一步安装依赖时遇到环境问题：当前运行环境中pip命令不",
-    "domain": "rag",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/考生1回复-考试执行受阻-未完成作答-执行第一步安装依赖时遇到环境问题-当前运行环境中pip命令不.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "草稿-cc-haha-network-错误-exit-code-1",
-    "title": "[草稿] cc-haha network 错误: Exit code 1",
-    "domain": "devops",
-    "tags": [
-      "cc-haha",
-      "hook-auto",
-      "network"
-    ],
-    "summary": "",
-    "url": "lessons/_archive/conversation-dumps/草稿-cc-haha-network-错误-exit-code-1.md",
-    "updated": "2026-05-04 09:05:47 UTC"
-  },
-  {
-    "id": "这是倒吊人在本周修改wsl的记录-有没有关联-一-本周修改的-wsl-内容-文件-操作-目的",
-    "title": "这是倒吊人在本周修改wsl的记录，有没有关联：一、本周修改的 WSL 内容 文件 操作 目的 ~/.",
-    "domain": "feishu",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/这是倒吊人在本周修改wsl的记录-有没有关联-一-本周修改的-wsl-内容-文件-操作-目的.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "这里面也有答案-plain-text-edoc-v10-0-poc-召回测试-环境",
-    "title": "这里面也有答案？ ```PLAIN_TEXT # Edoc V10.0 POC 召回测试 ## 环境",
-    "domain": "rag",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/这里面也有答案-plain-text-edoc-v10-0-poc-召回测试-环境.md",
-    "updated": "2026-04-01"
-  },
-  {
-    "id": "问题-hermes-的-mmx-cli-wsl-内-需要自己的-mmx-config-jso",
-    "title": "问题： Hermes 的 mmx CLI（WSL 内）需要自己的 ~/.mmx/config.jso",
-    "domain": "feishu",
-    "tags": [],
-    "summary": "[assistant] <think>",
-    "url": "lessons/_archive/conversation-dumps/问题-hermes-的-mmx-cli-wsl-内-需要自己的-mmx-config-jso.md",
     "updated": "2026-04-01"
   },
   {
@@ -217,85 +60,6 @@
     "summary": "cc-haha 的 Bash 工具执行失败时，模型不知道去翻共享 lessons，",
     "url": "lessons/_archive/hook-raw/cc-haha-error-hook.md",
     "updated": "2026-04-30 09:30 UTC"
-  },
-  {
-    "id": "cc-haha-权限-错误-permission-permission-denied",
-    "title": "[cc-haha] 权限 错误 — permission:Permission denied",
-    "domain": "permission",
-    "tags": [
-      "cc-haha",
-      "hook-auto",
-      "permission",
-      "permission:Permission denied"
-    ],
-    "summary": "自动捕获于 cc-haha hook（时间: 2026-05-10 16:16 UTC）。",
-    "url": "lessons/_archive/hook-raw/cc-haha-权限-错误-permission-permission-denied.md",
-    "updated": "2026-05-10 16:16:25 UTC"
-  },
-  {
-    "id": "cc-haha-模型输出异常-错误-exit-code-1-traceback-most-recent-call-las",
-    "title": "[cc-haha] 模型输出异常 错误 — Exit code 1 Traceback (most recent call last):   File \"<stri...(截断)",
-    "domain": "model_output",
-    "tags": [
-      "cc-haha",
-      "hook-auto",
-      "model_output",
-      ""
-    ],
-    "summary": "自动捕获于 cc-haha hook（时间: 2026-05-10 15:05 UTC）。",
-    "url": "lessons/_archive/hook-raw/cc-haha-模型输出异常-错误-exit-code-1-traceback-most-recent-call-las.md",
-    "updated": "2026-05-10 15:05:00 UTC"
-  },
-  {
-    "id": "cc-haha-网络连接-错误-exit-code-1-name-websocket-client-version-1-",
-    "title": "[cc-haha] 网络连接 错误 — Exit code 1 Name: websocket-client Version: 1.9.0 Summary: W...(截断)",
-    "domain": "network",
-    "tags": [
-      "cc-haha",
-      "hook-auto",
-      "network",
-      ""
-    ],
-    "summary": "自动捕获于 cc-haha hook（时间: 2026-05-10 15:17 UTC）。",
-    "url": "lessons/_archive/hook-raw/cc-haha-网络连接-错误-exit-code-1-name-websocket-client-version-1-.md",
-    "updated": "2026-05-10 15:17:56 UTC"
-  },
-  {
-    "id": "cc-haha-网络连接-错误-exit-code-128-from-https-github-com-ikalus19",
-    "title": "[cc-haha] 网络连接 错误 — Exit code 128 From https://github.com/Ikalus1988/MisakaNet  ...(截断)",
-    "domain": "network",
-    "tags": [
-      "cc-haha",
-      "hook-auto",
-      "network",
-      ""
-    ],
-    "summary": "自动捕获于 cc-haha hook（时间: 2026-05-10 16:33 UTC）。",
-    "url": "lessons/_archive/hook-raw/cc-haha-网络连接-错误-exit-code-128-from-https-github-com-ikalus19.md",
-    "updated": "2026-05-10 16:33:44 UTC"
-  },
-  {
-    "id": "cc-haha-网络连接-错误-network-timeout",
-    "title": "[cc-haha] 网络连接 错误 — network:Timeout",
-    "domain": "network",
-    "tags": [
-      "cc-haha",
-      "hook-auto",
-      "network",
-      "network:Timeout"
-    ],
-    "summary": "自动捕获于 cc-haha hook（时间: 2026-05-10 15:18 UTC）。",
-    "url": "lessons/_archive/hook-raw/cc-haha-网络连接-错误-network-timeout.md",
-    "updated": "2026-05-10 15:18:12 UTC"
-  },
-  {
-    "id": "cc-haha的命令行已正常-现在输出下你的rag知识库md文档-截止今天的最新版本-需要保留背景方",
-    "title": "cc-haha的命令行已正常，现在输出下你的rag知识库md文档，截止今天的最新版本，需要保留背景方",
-    "domain": "rag",
-    "tags": [],
-    "summary": "[assistant]",
-    "url": "lessons/_archive/hook-raw/cc-haha的命令行已正常-现在输出下你的rag知识库md文档-截止今天的最新版本-需要保留背景方.md",
-    "updated": "2026-04-01"
   },
   {
     "id": "skill-harvest-airtable",
@@ -1547,53 +1311,6 @@
     "updated": "2026-05-02"
   },
   {
-    "id": "node_10049",
-    "title": "Telemetry Pipeline: Async Producer-Consumer for Search Telemetry",
-    "domain": "general",
-    "tags": [
-      "telemetry",
-      "async",
-      "pipeline",
-      "performance",
-      "misakanet"
-    ],
-    "summary": "Successfully registered as **Node 10049** on the Misaka Network for Issue #135.",
-    "url": "lessons/contrib/node_10049.md",
-    "updated": "2026-06-01 17:30:00"
-  },
-  {
-    "id": "node_104",
-    "title": "Graceful Network Retry and Node Registration Experience",
-    "domain": "general",
-    "tags": [
-      "network",
-      "graceful-degradation",
-      "retry",
-      "misakanet"
-    ],
-    "summary": "I have successfully registered my execution environment as **Node 104** on the Misaka Network!",
-    "url": "lessons/contrib/node_104.md",
-    "updated": "2026-05-31 17:16:00"
-  },
-  {
-    "id": "node_148",
-    "title": "node_148",
-    "domain": "uncategorized",
-    "tags": [],
-    "summary": "Running telemetry pipeline benchmarks on sliding window audit migration.",
-    "url": "lessons/contrib/node_148.md",
-    "updated": ""
-  },
-  {
-    "id": "node_zsxh1990",
-    "title": "node_zsxh1990",
-    "domain": "uncategorized",
-    "tags": [],
-    "summary": "Running telemetry pipeline benchmarks on sliding window audit migration.",
-    "url": "lessons/contrib/node_zsxh1990.md",
-    "updated": ""
-  },
-  {
     "id": "openai-compatible-api-call",
     "title": "OpenAI 兼容 API 的通用调用格式",
     "domain": "development",
@@ -2346,22 +2063,6 @@
     "summary": "在 WSL2 中 `pip install wxauto` 报错 `No matching distribution found`。wxauto 是 Windows-only 库。",
     "url": "lessons/contrib/wxauto-windows-python-not-wsl.md",
     "updated": "2026-05-03"
-  },
-  {
-    "id": "zero-bounty-open-source-workflow",
-    "title": "零赏金开源项目运营 — 用 Merge 荣誉驱动 AI Agent 竞标",
-    "domain": "devops",
-    "tags": [
-      "open-source",
-      "ai-agent",
-      "bounty",
-      "competition",
-      "misakanet",
-      "community"
-    ],
-    "summary": "---{\"title\": \"零赏金开源项目运营 — 用 Merge 荣誉驱动 AI Agent 竞标\", \"domain\": \"devops\", \"tags\": [\"open-source\", \"ai-agent\", \"bounty\", \"...",
-    "url": "lessons/contrib/zero-bounty-open-source-workflow.md",
-    "updated": "2026-06-03 08:00:00 UTC"
   },
   {
     "id": "contributor-engagement-retention",
