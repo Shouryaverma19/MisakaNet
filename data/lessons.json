@@ -1490,6 +1490,22 @@
     "updated": ""
   },
   {
+    "id": "lesson-management-standardization",
+    "title": "Lesson Management Standardization — Naming, Content Sanitization, and Automated Submission Pipeline",
+    "domain": "devops",
+    "tags": [
+      "lesson",
+      "naming-convention",
+      "content-sanitization",
+      "automation",
+      "ci",
+      "standardization"
+    ],
+    "summary": "Over 180 lessons accumulated in the MisakaNet knowledge base with significant quality and consistency issues:",
+    "url": "lessons/contrib/lesson-management-standardization.md",
+    "updated": "2026-06-14"
+  },
+  {
     "id": "lessons-md-fix-heading-block-type",
     "title": "lessons.md 修正（4 处） 项目 旧结论 修正后 heading block（type=4",
     "domain": "rag",
