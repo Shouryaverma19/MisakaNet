@@ -367,7 +367,18 @@ export default {
       return await handleRegistration(request, env);
     }
 
+    // GET /ping — 保持 Worker 热实例
+    if (request.method === "GET" && url.pathname === "/ping") {
+      return new Response("pong", { status: 200 });
+    }
+
     // 其余路由（GET /）由 Pages 静态文件服务处理
     return new Response(null, { status: 404 });
+  },
+
+  // Cron 触发器 (每 5 分钟) — 保持 Worker 热实例，减少冷启动
+  async scheduled(event, env, ctx) {
+    // 轻量自 ping，不产生业务副作用
+    console.log(`[Keep Warm] Cron fired at ${new Date().toISOString()}`);
   },
 };
