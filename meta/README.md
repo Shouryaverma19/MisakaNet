@@ -12,6 +12,7 @@
 ## 当前文档
 
 - [`growth-pains.md`](./growth-pains.md) — 三个核心痛点讨论
+- [`critical-perspective-session3.txt`](./critical-perspective-session3.txt) — 战略批评与十年终局推演（分割线5）
 
 ## 如何参与
 
