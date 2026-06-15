@@ -2027,6 +2027,9 @@ async function fetchWithTimeout(url, timeoutMs = 8000) {
     return r.json();
   } catch(e) {
     clearTimeout(timer);
+    if (e.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms`);
+    }
     throw e;
   }
 }
