@@ -6,6 +6,7 @@ Ecosystem links:
 """
 import sys
 import time
+import re
 
 # ── 生态核心声明 ──
 from misakanet_core import BM25 as _  # noqa: F401  (ecosystem assertion)
@@ -30,6 +31,102 @@ def _ensure_utf8_stdout():
         pass
 
 
+# ── Heal mode: parse error logs, search lessons, return diagnosis ──
+# 4-level cascading fallback: traceback → error signature → exit code → last N lines
+
+# ANSI escape sequence pattern
+_ANSI_RE = re.compile(r'\x1b\[[0-9;]*m')
+
+
+def _strip_ansi(text: str) -> str:
+    """Remove ANSI color codes from log text."""
+    return _ANSI_RE.sub('', text)
+
+
+def _parse_error_signature(log_text: str) -> str:
+    """
+    4-level cascading error signature extractor.
+    Returns the most specific error signature found.
+    """
+    text = _strip_ansi(log_text)
+
+    # Level 1: Traceback — find the last exception line
+    tb_matches = re.findall(r'(?:[a-zA-Z0-9_]+Error|Exception|RuntimeError|Warning|Fault):\s*.+', text)
+    if tb_matches:
+        return tb_matches[-1]
+
+    # Level 2: ERROR / Error: <message>
+    err_match = re.search(r'(?:Error|ERROR|FATAL|CRITICAL):\s*(.+)', text)
+    if err_match:
+        return err_match.group(0)
+
+    # Level 3: exit code / status
+    exit_match = re.search(r'(?:exit code\s*|status\s*|returned\s*)(-?\d+)', text, re.IGNORECASE)
+    if exit_match:
+        return f"Process failed with exit code {exit_match.group(1)}"
+
+    # Level 4: last 5 non-empty lines as raw keyword block
+    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    return " ".join(lines[-5:]) if lines else text[:500]
+
+
+def _read_log(source: str = "") -> str:
+    """Read log from file or stdin. Caps at last 200 lines for safety."""
+    if source:
+        with open(source, 'r', errors='replace') as f:
+            lines = f.readlines()
+    else:
+        print("[MisakaNet] 📡 Reading error log from stdin (pipe your agent's stderr)...", file=sys.stderr)
+        lines = sys.stdin.readlines()
+
+    if len(lines) > 200:
+        lines = lines[-200:]
+
+    return "".join(lines)
+
+
+def heal(raw_log: str):
+    """Diagnose error log: extract signature → search lessons → output."""
+    # Step 1: Extract error signature
+    query = _parse_error_signature(raw_log)
+    if not query or len(query.strip()) < 3:
+        print("[MisakaNet] ❌ No valid error pattern captured from input.")
+        return
+
+    print(f"\n[MisakaNet] 🔍 Error signature: {query}")
+    print("-" * 50)
+
+    # Step 2: Search lessons using existing BM25 engine
+    from misakanet.search.engine import (
+        _load_docs, _rank_docs, _format_output, _show_timing,
+        LESSONS, REFERENCES,
+    )
+
+    t0 = time.time()
+    lessons_docs = _load_docs(LESSONS, is_lesson=True)
+    ref_docs = _load_docs(REFERENCES, is_lesson=False)
+    all_docs = lessons_docs + ref_docs
+
+    ranked = _rank_docs(query, all_docs, titles_only=False, broad_only=True)
+    found = _format_output(ranked, titles_only=False, top_k=5,
+                           mode_label=f"lessons+reference  (All {len(all_docs)} items)",
+                           query=query)
+    _show_timing(time.time() - t0, len(all_docs))
+
+    if found:
+        print()
+        print(f"  💡 Did this resolve your issue? If you applied a new fix,")
+        print(f"     contribute back to the swarm:")
+        print(f"     python3 scripts/queue_lesson.py -t 'your title' -d <domain> 'content...'")
+    else:
+        print(f"\n  📝 No matching lesson found for this error.")
+        print(f"     This means your issue hasn't been documented yet.")
+        print(f"     Contribute it to help others:")
+        print(f"     python3 scripts/queue_lesson.py -t 'your title' -d <domain> 'content...'")
+
+    print()
+
+
 def main():
     _ensure_utf8_stdout()
     args = sys.argv[1:]
@@ -46,6 +143,22 @@ def main():
         print("  See misaka-protocol.json → ecosystem.tools.harvester for spec.")
         print("  Status: planned — not yet implemented.")
         return
+    # ── Heal mode: diagnose error logs ──
+    use_heal = "--heal" in args
+    heal_source = ""
+    for i, arg in enumerate(args):
+        if arg == "--heal" and i + 1 < len(args) and not args[i + 1].startswith("--"):
+            heal_source = args[i + 1]
+        elif arg.startswith("--from-file="):
+            heal_source = arg.split("=", 1)[1]
+        elif arg == "--from-file" and i + 1 < len(args):
+            heal_source = args[i + 1]
+
+    if use_heal:
+        log = _read_log(heal_source)
+        heal(log)
+        return
+
     if "--score" in args:
         top_k = None
         telemetry_path = DEFAULT_TELEMETRY
