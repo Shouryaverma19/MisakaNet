@@ -14,6 +14,7 @@
 - [`growth-pains.md`](./growth-pains.md) — 三个核心痛点讨论
 - [`critical-perspective-session3.txt`](./critical-perspective-session3.txt) — 战略批评与十年终局推演（分割线5）
 - [`user-value-assessment-framework.md`](./user-value-assessment-framework.md) — 用户价值评估框架（通用方法论，已剥离具体测试过程）
+- [`lessons-quality-review.md`](./lessons-quality-review.md) — Lessons 全面 Review 与质量评分提升方向
 
 ## 如何参与
 
