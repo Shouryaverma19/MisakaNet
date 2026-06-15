@@ -2162,6 +2162,15 @@
     "updated": "2026-06-05 00:49:07 UTC"
   },
   {
+    "id": "README",
+    "title": "README",
+    "domain": "uncategorized",
+    "tags": [],
+    "summary": "MisakaNet supports multi-language lessons. Each lesson file carries a `language` field",
+    "url": "lessons/locales/README.md",
+    "updated": ""
+  },
+  {
     "id": "pr-cleanup-sop",
     "title": "PR 仓库清理 SOP — 过时/重复/已解决 PR 的处置策略",
     "domain": "devops",
