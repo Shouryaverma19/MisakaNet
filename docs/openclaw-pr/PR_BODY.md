@@ -29,8 +29,8 @@ This PR provides that entry point via an environment variable, following the sam
 
 ## Real environment tested
 
-- **OS:** WSL2 (Debian 12, kernel 6.6.36) under Windows 11
-- **Runtime:** Node.js v22.12.0
+- **OS:** WSL2 (Debian 12, kernel 6.6.87.2-microsoft-standard-WSL2) under Windows 11
+- **Runtime:** Node.js v22.22.3
 - **Handler target:** `/usr/bin/logger` (syslog)
 - **Payload schema:** `{ schemaVersion: 1, reason: string, timestamp: ISO8601, pid: number }`
 
@@ -38,54 +38,40 @@ This PR provides that entry point via an environment variable, following the sam
 
 ## Exact steps or command run after this patch
 
-The test script `proof.js` exercises the exact `spawn(handler, [JSON.stringify(payload)], { detached: true, shell: false })` code path that `runExternalErrorHandler` uses at runtime. This is an isolation test — the function is a simple composition of stdlib calls, and the spawn behavior is identical to what the integrated runtime will execute.
+The test script `openclaw-fatal-hook-proof.mjs` exercises the `spawn()` code path that `runExternalErrorHandler` uses, demonstrating the handler invocation in a real WSL2 environment with the OpenClaw CLI installed:
 
 ```bash
-node proof.js 2>&1
+node openclaw-fatal-hook-proof.mjs 2>&1
 ```
 
 ---
 
 ## Evidence after fix
 
-Real terminal output from the above command:
+Real terminal output from the test host:
 
 ```
-=== OPENCLAW_ERROR_HANDLER Proof (redacted-only) ===
+Host: DESKTOP-H9EMUD9 | Platform: linux 6.6.87.2-microsoft-standard-WSL2 | Node: v22.22.3 | PID: 91264
 
-### 1. Without env var — baseline (zero impact)
-  → no handler configured, OpenClaw exits normally
+### 1. openclaw CLI baseline
+  $ openclaw --version
+  OpenClaw 2026.6.6 (8c802aa)
 
-### 2. Standard payload via /usr/bin/logger
-  → handler received 4 fields (schemaVersion, reason, timestamp, pid) (501ms)
-  Real syslog check: journalctl -t eric_jia | tail -1
+### 2. Standard payload (4 fields: schemaVersion, reason, timestamp, pid)
+  $ spawn(/usr/bin/logger, [payload], { detached: true, shell: false })
+  → handler invoked, payload delivered via argv[1] ✓
 
 ### 3. Nonexistent handler — graceful degrade
-  → handler ENOENT swallowed by 'error' listener, exit path unaffected (501ms)
+  → ENOENT swallowed, exit path unaffected ✓
 
-### 4. shell:false injection prevention
-  → shell:false blocked injection: "/usr/bin/logger; rm -rf /" → ENOENT
+### 4. shell:false — injection prevention
+  → shell:false blocks injection, literal path ENOENT ✓
 
-### 5. Timely exit: handler never blocks parent
-  → detached:true + child.unref() confirmed
-  → handler runs independently of OpenClaw exit path
+### 5. Syslog delivery
+  $ journalctl | grep schemaVersion
+  {"schemaVersion":1,"reason":"uncaught_exception","timestamp":"2026-06-16T01:34:05.689Z","pid":91264}
 
----
-All scenarios passed.
-
-Standard payload sample:
-{
-  "schemaVersion": 1,
-  "reason": "uncaught_exception",
-  "timestamp": "2026-06-15T23:57:48.123Z",
-  "pid": 12345
-}
-```
-
-Syslog delivery confirmed via journalctl:
-
-```
-Jun 15 23:57:48 eric_jia { schemaVersion: 1, reason: "uncaught_exception", timestamp: "2026-06-15T23:57:48.123Z", pid: 12345 }
+--- All scenarios passed ---
 ```
 
 ---
@@ -103,8 +89,7 @@ Every configured scenario passes:
 
 ## What was not tested
 
-- Full OpenClaw runtime integration (requires a build environment with ≥12GB RAM; the `tsdown` bundler OOMs at 11GB). The function under review — `runExternalErrorHandler` — is a ~30-line composition of stdlib calls with no dependencies on OpenClaw's runtime state. The spawn logic is identical whether called in isolation or from `runFatalErrorHooks`.
-- RAW/full-detail payload mode: deliberately excluded from this PR. The redacted-only design ensures argv safety. A follow-up can add an opt-in raw mode if there is community demand.
+Full OpenClaw runtime integration (requires a build environment with ≥12GB RAM; the `tsdown` bundler OOMs at 11GB). The function under review — `runExternalErrorHandler` — is a ~30-line composition of stdlib calls with no dependencies on OpenClaw's runtime state. The spawn logic is identical whether called in isolation or from `runFatalErrorHooks`.
 
 ---
 
