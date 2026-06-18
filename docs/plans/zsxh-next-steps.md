@@ -99,12 +99,17 @@ main()  // 裸跑，unhandled rejection 不收口
 
 ```
 1. fork e2b-dev/E2B
-2. 包 main() + 加 unhandledRejection handler
+2. 包 main() + 加 unhandledRejection handler（模板: docs/e2b-pr/index.ts.patch）
 3. build + 真 fatal path proof
-4. PR body（OpenClaw v6 改 E2B 版）
+4. PR body（已就绪: docs/e2b-pr/PR_BODY.md，跑完 proof 填 Evidence 段）
 5. commit + signoff + push
 6. 等 review
 ```
+
+### 已就绪物料
+
+- `docs/e2b-pr/PR_BODY.md` — PR 正文模板（需跑完 proof 填 Evidence）
+- `docs/e2b-pr/index.ts.patch` — 代码改动模板
 
 ---
 
