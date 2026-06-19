@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 /**
- * @misakanet/fatal-guard/register
+ * @misaka-net/fatal-guard/register
  *
- * Non-invasive fatal error guard.  Load via `node -r @misakanet/fatal-guard/register`.
+ * Non-invasive fatal error guard.  Load via `node -r @misaka-net/fatal-guard/register`.
  * Hooks process.uncaughtException and process.unhandledRejection, routes
  * structured 4-field payload to the external handler defined in FATAL_HANDLER.
  *
  * Usage:
- *   FATAL_HANDLER=/usr/bin/logger node -r @misakanet/fatal-guard/register ./app.js
+ *   FATAL_HANDLER=/usr/bin/logger node -r @misaka-net/fatal-guard/register ./app.js
  *
  * Payload (4 fields, JSON via argv[1]):
  *   schemaVersion — always 1

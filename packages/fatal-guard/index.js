@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @misakanet/fatal-guard
+ * @misaka-net/fatal-guard
  *
  * Zero-dependency non-invasive fatal error guard.
  *
@@ -10,10 +10,10 @@
  *   - FatalPayload          — Type signature (JSDoc)
  *
  * For automatic hook registration, use:
- *   node -r @misakanet/fatal-guard/register ./app.js
+ *   node -r @misaka-net/fatal-guard/register ./app.js
  *
  * Or import and attach manually:
- *   const { runHandler } = require('@misakanet/fatal-guard');
+ *   const { runHandler } = require('@misaka-net/fatal-guard');
  *   process.on('uncaughtException', (err) => runHandler('uncaught_exception'));
  */
 

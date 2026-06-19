@@ -1,4 +1,4 @@
-# @misakanet/fatal-guard
+# @misaka-net/fatal-guard
 
 > Zero-dependency non-invasive fatal error guard for Node.js CLIs.  
 > Capture uncaught exceptions, unhandled rejections, and non-zero exits — route structured 4-field payload to an external handler.
@@ -9,7 +9,7 @@ Vite, E2B, OpenClaw — three major CLI tools all lack a standard mechanism to h
 This package provides that entry point without modifying any source code.
 
 ```
-node -r @misakanet/fatal-guard/register ./node_modules/.bin/vite build
+node -r @misaka-net/fatal-guard/register ./node_modules/.bin/vite build
 ```
 
 No fork. No PR. No dependency. One env var.
@@ -19,13 +19,13 @@ No fork. No PR. No dependency. One env var.
 ### Automatic registration (recommended)
 
 ```bash
-FATAL_HANDLER=/usr/bin/logger node -r @misakanet/fatal-guard/register ./app.js
+FATAL_HANDLER=/usr/bin/logger node -r @misaka-net/fatal-guard/register ./app.js
 ```
 
 ### Manual registration
 
 ```js
-const { runHandler } = require('@misakanet/fatal-guard');
+const { runHandler } = require('@misaka-net/fatal-guard');
 
 process.on('uncaughtException', (err) => {
   runHandler('uncaught_exception');
