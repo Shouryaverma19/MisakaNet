@@ -340,12 +340,34 @@ def _get_match_reason(query: str, doc: CachedDoc, score: float) -> str:
     
     return ", ".join(reasons) if reasons else ""
 
+def _get_related_lessons(doc: CachedDoc, all_docs: list[CachedDoc],
+                         max_related: int = 3) -> list[tuple[str, str]]:
+    """Find related lessons by shared tags. Returns [(title, filename), ...]."""
+    if not doc.tags or not all_docs:
+        return []
+    doc_tags = set(t.lower() for t in doc.tags)
+    scored = []
+    for other in all_docs:
+        if other.filename == doc.filename:
+            continue
+        if not other.tags:
+            continue
+        other_tags = set(t.lower() for t in other.tags)
+        overlap = doc_tags & other_tags
+        if len(overlap) >= 1:
+            # Score by number of shared tags
+            scored.append((len(overlap), other.title, other.filename))
+    scored.sort(key=lambda x: -x[0])
+    return [(t, f) for _, t, f in scored[:max_related]]
+
+
 def _format_output(scored: list[tuple[float, CachedDoc]],
                    titles_only: bool = False,
                    top_k: int = 10,
                    mode_label: str = "",
                    query: str = "",
-                   explain: bool = False) -> bool:
+                   explain: bool = False,
+                   all_docs: Optional[list[CachedDoc]] = None) -> bool:
     if not scored:
         return False
     n = len(scored)
@@ -377,6 +399,12 @@ def _format_output(scored: list[tuple[float, CachedDoc]],
             meta = _metadata_bonus(query, doc)
             baseline = doc.score_baseline
             print(f"  {'':>25} ↳ BM25: {bm25:.3f} | Meta: {meta:.3f} | Base: {baseline:.3f} | Tags: {', '.join(doc.tags[:5]) if doc.tags else '—'}")
+        # Feature: related lessons (cross-lesson reference graph)
+        if all_docs is not None:
+            related = _get_related_lessons(doc, all_docs, max_related=3)
+            if related:
+                rel_line = ", ".join(f"📄 {f}" for _, f in related)
+                print(f"  {'':>25} 🔗 Related: {rel_line}")
         if titles_only:
             continue
         rel_dir = "lessons" if doc.is_lesson else "reference"
@@ -425,6 +453,7 @@ __all__ = [
     "_load_docs", "_rank_docs", "_format_output", "_show_timing",
     "_tokenize", "_compute_bm25_scores", "_normalize",
     "_is_verified", "_is_core", "_relative_time", "_get_match_reason",
+    "_get_related_lessons",
 ]
 
 

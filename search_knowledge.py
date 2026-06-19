@@ -180,7 +180,8 @@ def heal(raw_log: str):
     ranked = _rank_docs(primary_sig, all_docs, titles_only=False, broad_only=True)
     found = _format_output(ranked, titles_only=False, top_k=5,
                            mode_label=f"lessons+reference  (All {len(all_docs)} items)",
-                           query=primary_sig, explain=False)
+                           query=primary_sig, explain=False,
+                           all_docs=all_docs)
     _show_timing(time.time() - t0, len(all_docs))
 
     if unmatched_count > 0:
@@ -359,13 +360,15 @@ def main():
             use_semantic = False
     MIN_SCORE_THRESHOLD = 0.1  # Minimum score to consider as "found"
     
+    all_docs = lessons_docs + ref_docs
     if lessons_docs:
         ranked = _rank_docs(query, lessons_docs, titles_only, broad_only)
         # Only show results above threshold
         filtered = [(s, d) for s, d in ranked if s >= MIN_SCORE_THRESHOLD]
         found = _format_output(filtered, titles_only, top_k,
                                mode_label=f"lessons/  (All {len(lessons_docs)} items)",
-                               query=query, explain=explain)
+                               query=query, explain=explain,
+                               all_docs=all_docs)
         found_any = found_any or found
     if ref_docs:
         ranked = _rank_docs(query, ref_docs, titles_only, broad_only=False)
@@ -373,7 +376,8 @@ def main():
         filtered = [(s, d) for s, d in ranked if s >= MIN_SCORE_THRESHOLD]
         found = _format_output(filtered, titles_only, top_k,
                                mode_label=f"reference/  (All {len(ref_docs)} items)",
-                               query=query, explain=explain)
+                               query=query, explain=explain,
+                               all_docs=all_docs)
         found_any = found_any or found
     total_docs = len(lessons_docs) + len(ref_docs)
     if not found_any:
