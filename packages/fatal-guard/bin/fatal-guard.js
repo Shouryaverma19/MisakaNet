@@ -40,6 +40,7 @@ if (cmdArgs.length === 0) {
 }
 
 const { buildPayload, runHandler } = require('../index');
+const { redact } = require('../src/lib/redact');
 
 // ── TTY detection ────────────────────────────────────────────────
 // If parent stderr is a TTY, inherit it so child processes see a real TTY
@@ -80,12 +81,13 @@ child.on('exit', (code, signal) => {
   if (crashed && hasError) {
     const reason = signal ? `killed_by_${signal}` : 'process_crash';
     try {
-      const snippet = stderrBuffer
+      const rawSnippet = stderrBuffer
         ? stderrBuffer.split('\n').filter(Boolean).slice(-4).join('\n').trim()
         : `[fatal-guard] process crashed (exit code: ${code}, signal: ${signal})`;
+      const snippet = redact(rawSnippet).slice(0, 500);
       const payload = JSON.stringify({
         ...JSON.parse(buildPayload(reason)),
-        snippet: snippet.slice(0, 500),
+        snippet,
       });
       runHandler(reason, payload);
     } catch (_) {}
