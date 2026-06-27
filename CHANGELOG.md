@@ -7,6 +7,42 @@ All notable changes to the Misaka Network project are documented here.
 
 ---
 
+## v2.7.0 — 2026-06-18
+
+### 🚀 Highlights
+- **A-to-C Closed Loop**: `tombstone_to_draft` converts fatal-guard tombstones to draft lessons, `bench_orchestrator` injects drafts as tasks, agents solve and verify — full crash-to-lesson automation
+- **fatal-guard v0.2.2**: wrapper mode (`fatal-guard -- <cmd>`), multi-env-var fallback, env redaction (redact.js), syslog payload, npm published as `@misaka-net/fatal-guard`
+- **Proof of Access Quota**: 5 free searches for new nodes, unlimited for contributors, quota resets on lesson contribution
+- **Python Guard Sidecar**: `python3 -m misakanet.guard --to-draft -- <cmd>` — crash capture + auto-draft generation
+- **Log Harvester CLI**: `--harvest --from-file <path>` — parse error logs and generate SKP-compliant lesson drafts
+- **Cross-Lesson Reference Graph**: related lessons discovered by shared tags
+- **Contributor Score**: `lessons_contributed` bonus added to leaderboard formula
+- **Search Ranking Boost** (#228): core (+0.15), verified (+0.10), recent (+0.05) lessons ranked higher; drafts penalized (-0.20)
+- **README zh-CN** (#245): Chinese translation of README
+- **Lesson Metadata Standardization** (#250): batch header normalization across 200+ lessons
+- **CI Security Hardening**: secret scan + dependency audit gates hardened to fail-closed
+
+### 📦 Lessons
+- 207 total lessons (11 core + 196 contrib)
+- New domains: feishu, fanuc, RAG, browser automation, WSL2
+- Quality scoring infrastructure: `scripts/score_lessons.py`, `data/quality_scores.json`
+
+### 🏛️ Governance
+- Product matrix documented: fatal-guard / MisakaNet / bench-core / misakanet-core
+- Claim window extended from 4h to 8h
+- Partners & sponsors program proposal
+- Enterprise adoption cases documented (2 cases)
+- Ring-0 founder track proposal
+
+### 🔧 Fixes
+- Leaderboard `import re` missing (#229)
+- 124 broken lesson paths repaired in index.md
+- TTY preservation + OOM crash detection (from 方舟29期)
+- fatal-guard scope rename `@misakanet` → `@misaka-net`
+- fatal-guard workflow permissions block added (CodeQL alert #35)
+
+---
+
 ## v2.6 — 2026-06-13
 
 ### 🚀 Highlights
