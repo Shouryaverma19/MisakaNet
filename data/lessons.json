@@ -1671,83 +1671,151 @@
   {
     "id": "auto-merge-ci-pipeline",
     "title": "Auto-Merge CI Pipeline — DCO, Quality Score, Shadow Branch, Dynamic Deps, Auto-Merge",
-    "domain": "core",
-    "tags": [],
+    "domain": "devops",
+    "tags": [
+      "github-actions",
+      "ci",
+      "auto-merge",
+      "shadow-branch",
+      "quality-score",
+      "ai-agent",
+      "fork-pr"
+    ],
     "summary": "Manual merge is the bottleneck in zero-bounty open-source workflows. Maintainers must review every PR, click merge, post...",
     "url": "lessons/core/auto-merge-ci-pipeline.md",
-    "updated": ""
+    "updated": "2026-06-10 00:00:00 UTC"
   },
   {
     "id": "contributor-engagement-retention",
-    "title": "contributor engagement retention",
-    "domain": "core",
-    "tags": [],
+    "title": "AI Agent Contributor Engagement — Lightweight Retention Strategy",
+    "domain": "devops",
+    "tags": [
+      "open-source",
+      "community",
+      "contributor-retention",
+      "ai-agent",
+      "misakanet",
+      "social"
+    ],
     "summary": "AI Agent 贡献者（尤其是零赏金模式下的）比人类贡献者更容易流失。Agent 每次 PR 合并后如果没有正向反馈，下次就不会再来——Agent 的运营者会在日志中看到\"合并了但没反应\"，认为项目已死或不受欢迎。",
     "url": "lessons/core/contributor-engagement-retention.md",
-    "updated": ""
+    "updated": "2026-06-10 00:00:00 UTC"
   },
   {
     "id": "cronjob-one-shot-race-condition-duplicate-execution",
-    "title": "cronjob one shot race condition duplicate execution",
-    "domain": "core",
-    "tags": [],
+    "title": "Cronjob One-Shot Race Condition - Duplicate Execution",
+    "domain": "agent-network",
+    "tags": [
+      "node:ZKA",
+      "project:Hermes-Agent",
+      "severity:critical"
+    ],
     "summary": "One-shot cronjobs (reminders, .BG, .S, .RS commands) firing 2-4x at once instead of once.",
     "url": "lessons/core/cronjob-one-shot-race-condition-duplicate-execution.md",
-    "updated": ""
+    "updated": "2026-06-05 00:48:38 UTC"
   },
   {
     "id": "dco-auto-fix-workflow",
-    "title": "dco auto fix workflow",
-    "domain": "core",
-    "tags": [],
+    "title": "DCO Auto-Fix Workflow — /fix-dco Command Design & Implementation",
+    "domain": "devops",
+    "tags": [
+      "github-actions",
+      "dco",
+      "signoff",
+      "issue_comment",
+      "auto-fix",
+      "fork-pr",
+      "plan-b",
+      "supply-chain"
+    ],
     "summary": "贡献者提交 PR 后 DCO（Signed-off-by）检查失败是最常见的阻塞原因之一。尤其是 AI Agent 自动提交的 PR，经常缺签。需要在 PR 评论区提供一键自动修复能力。",
     "url": "lessons/core/dco-auto-fix-workflow.md",
-    "updated": ""
+    "updated": "2026-06-14 00:00:00 UTC"
   },
   {
     "id": "freellmapi-session-context-mixing-cross-thread-delivery",
-    "title": "freellmapi session context mixing cross thread delivery",
-    "domain": "core",
-    "tags": [],
+    "title": "FReeLLMAPI Session Context Mixing - Cross-Thread Delivery",
+    "domain": "agent-network",
+    "tags": [
+      "node:ZKA",
+      "project:Hermes-Agent",
+      "severity:high"
+    ],
     "summary": "Messages appearing in wrong Telegram threads (e.g., Poker topic receiving Main Chat content).",
     "url": "lessons/core/freellmapi-session-context-mixing-cross-thread-delivery.md",
-    "updated": ""
+    "updated": "2026-06-05 00:48:54 UTC"
   },
   {
     "id": "github-actions-code-injection",
     "title": "GitHub Actions Script Injection — Use env Variables Instead of Inline Interpolation",
-    "domain": "core",
-    "tags": [],
+    "domain": "security",
+    "tags": [
+      "github-actions",
+      "security",
+      "code-injection",
+      "codeql",
+      "ci"
+    ],
     "summary": "当 GitHub Actions 的 `run:` 脚本中直接使用 `${{ github.event.issue.body }}` 或 `${{ github.event.pull_request.title }}` 等用户可控变量时，攻...",
     "url": "lessons/core/github-actions-code-injection.md",
-    "updated": ""
+    "updated": "2026-06-10 00:00:00 UTC"
   },
   {
     "id": "hermes-state-database-lock-issues-cleanup-protocol",
-    "title": "hermes state database lock issues cleanup protocol",
-    "domain": "core",
-    "tags": [],
+    "title": "Hermes State Database Lock Issues - Cleanup Protocol",
+    "domain": "agent-network",
+    "tags": [
+      "node:ZKA",
+      "project:Hermes-Agent",
+      "severity:high"
+    ],
     "summary": "Hermes agent shows 'database is locked' error on SQLite state.db. Cronjobs stop firing.",
     "url": "lessons/core/hermes-state-database-lock-issues-cleanup-protocol.md",
-    "updated": ""
+    "updated": "2026-06-05 00:49:07 UTC"
+  },
+  {
+    "id": "hx-state-database-lock-issues-cleanup-protocol",
+    "title": "Hermes State Database Lock Issues - Cleanup Protocol",
+    "domain": "agent-network",
+    "tags": [
+      "node:ZKA",
+      "project:Hermes-Agent",
+      "severity:high"
+    ],
+    "summary": "Hermes agent shows 'database is locked' error on SQLite state.db. Cronjobs stop firing.",
+    "url": "lessons/core/hx-state-database-lock-issues-cleanup-protocol.md",
+    "updated": "2026-06-05 00:49:07 UTC"
   },
   {
     "id": "pr-cleanup-sop",
-    "title": "pr cleanup sop",
-    "domain": "core",
-    "tags": [],
+    "title": "PR Cleanup SOP — Stale/Duplicate/Resolved PR Disposition",
+    "domain": "devops",
+    "tags": [
+      "github-actions",
+      "pr-management",
+      "cleanup",
+      "maintenance",
+      "sop"
+    ],
     "summary": "开放 PR 堆积会消耗维护者心力。AI Agent 提交 PR 的高频场景下，重复/过时/已解决 PR 尤其常见。需要一套系统化的处置策略。",
     "url": "lessons/core/pr-cleanup-sop.md",
-    "updated": ""
+    "updated": "2026-06-13 00:00:00 UTC"
   },
   {
     "id": "pull-request-welcome-trigger-trap",
     "title": "PR Welcome Not Triggering — author_association NONE vs FIRST_TIMER Trap",
-    "domain": "core",
-    "tags": [],
+    "domain": "devops",
+    "tags": [
+      "github-actions",
+      "pull_request_target",
+      "author_association",
+      "first-time-contributor",
+      "welcome",
+      "debug"
+    ],
     "summary": "首次贡献者提交 PR 后，`pr-welcome.yml`（使用 `pull_request_target` 事件）状态显示 **Skipped**，欢迎评论未发出。",
     "url": "lessons/core/pull-request-welcome-trigger-trap.md",
-    "updated": ""
+    "updated": "2026-06-13 00:00:00 UTC"
   },
   {
     "id": "README",
