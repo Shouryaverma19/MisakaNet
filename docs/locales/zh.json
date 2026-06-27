@@ -59,5 +59,7 @@
   "clsCopilot": "Copilot 辅助",
   "clsHuman": "人类",
   "clsUnclassified": "未分类",
-  "modelPrefix": "驱动"
+  "modelPrefix": "驱动",
+  "latestUpdates": "最新动态",
+  "productMatrix": "产品矩阵"
 }
